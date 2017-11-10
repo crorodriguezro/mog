@@ -1,14 +1,11 @@
 package io;
 
 import model.Resource;
+import model.ResourceType;
 import model.Scheduler;
 import model.Job;
 
 import java.io.*;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.TreeMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -31,7 +28,8 @@ public class ParseFile {
         }
         String line;
         int jobsAmount;
-        Resource[] resources;
+        int resourceTypesAmount;
+        Job[] jobsWithSuccessors;
         Job[] jobs;
         try {
             line = reader.readLine();
@@ -40,11 +38,17 @@ public class ParseFile {
             // Nos saltamos hasta RESOURCES
             skipTo(reader, line, "RESOURCES");
             // Leemos los recursos
-            resources = readResources(reader, 3);
+            resourceTypesAmount = readResourceTypesAmount(reader);
             // Nos saltamos hasta jobnr
             skipTo(reader, line, "jobnr.");
             // Leemos los trabajos
-            jobs = readJobs(reader, jobsAmount);
+            jobsWithSuccessors = readJobWithSuccessors(reader, jobsAmount);
+            //Leemos Time And Resources
+            skipTo(reader,line,"----");
+            jobs = readTimeAndResources(reader, jobsAmount, jobsWithSuccessors);
+            skipTo(reader,line,"RESOURCEAVAILABILITIES");
+
+            Resource[] resources = readTotalResources(reader);
             // Creamos el Scheduler con los trabajos y las tareas
             schedule = new Scheduler(jobs, resources);
 
@@ -76,30 +80,27 @@ public class ParseFile {
         return Integer.parseInt(line.substring(lastCharacterIndex + 1));
     }
 
-    /**
-     * Reads resources from the file.
-     *
-     * @param reader       used reader
-     * @param numResources number of resources to processFile
-     * @return Array of resources
-     * @throws IOException when file is in the wrong format
-     */
-    private Resource[] readResources(BufferedReader reader, int numResources) throws IOException {
-        Resource[] resources = new Resource[numResources];
+    private int readResourceTypesAmount(BufferedReader reader) throws IOException {
         String line;
         String[] parts;
-        int resourceAmount;
-        String resourceType;
-
-        for (int i = 0; i < numResources; ++i) {
+        int resourceAmount = 0;
+        for (int i = 0; i < 3; ++i) {
             line = reader.readLine();
-
             parts = line.split("\\s+");
-            resourceAmount = Integer.parseInt(parts[parts.length - 2]);
-            resourceType = parts[parts.length - 1];
-            resources[i] = new Resource(resourceAmount, resourceType);
+            resourceAmount = resourceAmount + Integer.parseInt(parts[parts.length - 2]);
         }
 
+        return resourceAmount;
+    }
+
+    private Resource[] readTotalResources(BufferedReader reader) throws IOException {
+        reader.readLine();
+        String line = reader.readLine();
+        String[] parts = line.split("\\s+");
+        Resource[] resources = new Resource[parts.length - 1];
+        for (int i = 1; i < parts.length; i++) {
+            resources[i-1] = new Resource(Integer.parseInt(parts[i]), ResourceType.RENEWABLE);
+        }
         return resources;
     }
 
@@ -111,12 +112,11 @@ public class ParseFile {
      * @return array of tasks
      * @throws IOException when file is in the wrong format
      */
-    private Job[] readJobs(BufferedReader reader, int numTasks) throws IOException {
+    private Job[] readJobWithSuccessors(BufferedReader reader, int numTasks) throws IOException {
         Job[] tasks = new Job[numTasks];
         String line;
         String[] parts;
         int id;
-        int duration;
         int[] successors;
 
         for (int i = 0; i < numTasks; ++i) {
@@ -124,13 +124,32 @@ public class ParseFile {
 
             parts = line.split("\\s+");
             id = Integer.parseInt(parts[1]);
-            duration = Integer.parseInt(parts[1]);
             successors = readSuccessors(parts);
 
-            tasks[i] = new Job(id,null, duration, successors);
+            tasks[i] = new Job(id,-1, -1, successors, null);
         }
 
         return tasks;
+    }
+
+    private Job[] readTimeAndResources(BufferedReader reader, int jobsAmount, Job[] jobs) throws IOException {
+        Job[] newJobs = new Job[jobsAmount];
+        String line;
+        String[] parts;
+        int id;
+        int duration;
+        int[] resources;
+
+        for (int i = 0; i < jobsAmount; ++i) {
+            line = reader.readLine();
+            parts = line.split("\\s+");
+            id = Integer.parseInt(parts[2]);
+            duration = Integer.parseInt(parts[3]);
+            resources = readResources (parts);
+            newJobs[i] = new Job(id, duration, -1, jobs[i].getSuccessors(), resources);
+        }
+
+        return newJobs;
     }
 
     /**
@@ -148,6 +167,15 @@ public class ParseFile {
         return successors;
     }
 
+    private int[] readResources(String[] parts) {
+        int[] resources = new int[parts.length - 4];
+        for (int i = 0; i < resources.length; ++i)
+        {
+            resources[i] = Integer.parseInt(parts[i + 4]);
+        }
+
+        return resources;
+    }
     /**
      * Skips the reader to the line starting with the desired string
      *
@@ -177,35 +205,4 @@ public class ParseFile {
             LOGGER.log(Level.FINE, e.toString());
         }
     }
-
-    /**
-     * Saves a schedule to the file.
-     *
-     * @param schedule schedule to save
-     * @param filename path to the file
-     * @throws IOException
-     */
-    // TODO: taken from legacy code - refactor!
-    public void write(Scheduler schedule, String filename)
-            throws IOException {
-        PrintWriter writer = new PrintWriter(new FileWriter(filename));
-        Map<Integer, List<Job>> map = new TreeMap<Integer, List<Job>>();
-        writer.write("Hour \t Resource assignments (resource ID - task ID) \n");
-        for (Job t : schedule.getJobs()) {
-            if (!map.containsKey(t.getStart())) {
-                map.put(t.getStart(), new LinkedList<Job>());
-            }
-            map.get(t.getStart()).add(t);
-        }
-        for (int i : map.keySet()) {
-            writer.write(i + " ");
-            for (Job t : map.get(i)) {
-                writer.write(t.getResourceId() + "-" + t.getId() + " ");
-            }
-            writer.write("\n");
-        }
-        writer.close();
-
-    }
-
 }
