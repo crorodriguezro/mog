@@ -1,19 +1,12 @@
 package model;
 
-/**
- * Defines resource in a project. Resource can be assigned to task if it has
- * required skill at no lower than required level. It is also defined by salary.
- * To make design easier, resource is also described by finish field - the time
- * when resource finished its last assigned task.
- */
 public class Resource implements Cloneable
 {
-
-    private int finish;
+    private int amount;
     private String resourceType;
 
-    public Resource(int finish, String resourceType) {
-        this.finish = finish;
+    public Resource(int amount, String resourceType) {
+        this.amount = amount;
         this.resourceType = resourceType;
     }
 
@@ -21,12 +14,12 @@ public class Resource implements Cloneable
         this.resourceType = resourceType;
     }
 
-    public int getFinish() {
-        return finish;
+    public int getAmount() {
+        return amount;
     }
 
-    public void setFinish(int finish) {
-        this.finish = finish;
+    public void setAmount(int amount) {
+        this.amount = amount;
     }
 
     public String getResourceType() {
@@ -36,20 +29,4 @@ public class Resource implements Cloneable
     public void setResourceType(String resourceType) {
         this.resourceType = resourceType;
     }
-
-    /**
-     * Compare two resources.
-     *
-     * @param r resource to compare to
-     * @return true if this resource is equal to resource r
-     */
-    @Override
-    public boolean equals(Object r) {
-        if (!(r instanceof Resource)) {
-            return false;
-        }
-        Resource resource = (Resource) r;
-        return resourceType.equals(resource.resourceType);
-    }
-
 }

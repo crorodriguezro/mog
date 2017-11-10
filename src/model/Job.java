@@ -14,7 +14,7 @@ import java.util.Arrays;
  * of assigned resource and start time is -1, it means that task is not assigned
  * to any resource and not placed anywhere in the timeline.
  */
-public class Task implements Comparable, Cloneable {
+public class Job implements Comparable, Cloneable {
 
     private int id;
     private Skill requiredSkill;
@@ -23,8 +23,8 @@ public class Task implements Comparable, Cloneable {
     private int[] successors;
     private int resourceId;
 
-    public Task(int id, Skill requiredSkill, int duration, int start,
-                int[] successors, int resourceId) {
+    public Job(int id, Skill requiredSkill, int duration, int start,
+               int[] successors, int resourceId) {
         this.id = id;
         this.requiredSkill = requiredSkill;
         this.duration = duration;
@@ -33,11 +33,11 @@ public class Task implements Comparable, Cloneable {
         this.resourceId = resourceId;
     }
 
-    public Task(int id, Skill skill, int duration, int[] successors) {
+    public Job(int id, Skill skill, int duration, int[] successors) {
         this(id, skill, duration, -1, successors, -1);
     }
 
-    public Task(int id, Skill skill, int duration, int[] successors, int resourceId) {
+    public Job(int id, Skill skill, int duration, int[] successors, int resourceId) {
         this(id, skill, duration, -1, successors, resourceId);
     }
 
@@ -108,10 +108,10 @@ public class Task implements Comparable, Cloneable {
      */
     @Override
     public boolean equals(Object t) {
-        if (!(t instanceof Task)) {
+        if (!(t instanceof Job)) {
             return false;
         }
-        Task task = (Task) t;
+        Job task = (Job) t;
         return duration == task.duration &&
                 id == task.id &&
                 Arrays.equals(successors, task.successors) &&
@@ -128,14 +128,14 @@ public class Task implements Comparable, Cloneable {
      */
     @Override
     public int compareTo(Object o) {
-        if (!(o instanceof Task)) {
+        if (!(o instanceof Job)) {
             throw new IllegalArgumentException("Parameter is not a Task");
         }
-        return Integer.compare(start, ((Task) o).start);
+        return Integer.compare(start, ((Job) o).start);
     }
 
-    public Task clone() {
-        return new Task(id, requiredSkill, duration,start, successors,resourceId);
+    public Job clone() {
+        return new Job(id, requiredSkill, duration,start, successors,resourceId);
     }
 
 }
