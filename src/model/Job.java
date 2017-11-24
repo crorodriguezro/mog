@@ -7,10 +7,12 @@ public class Job {
     private int id;
     private int duration;
     private int start;
+
+    private int finish;
+
     private int[] resources;
     private List<Job> predecessors = new ArrayList<>();
     private List<Job> successors = new ArrayList<>();
-
     public Job(int id) {
         this.id = id;
     }
@@ -22,9 +24,16 @@ public class Job {
         this.resources = resources;
     }
 
-    public int getId() {
-        return id;
+    public void start(int t) {
+        this.start = t;
+        this.finish = t + duration;
     }
+
+    public int getFinish() {
+        return finish;
+    }
+
+    public int getId() { return id; }
 
     public void setId(int id) {
         this.id = id;
@@ -72,7 +81,7 @@ public class Job {
 
     public void removePredecessor(int idPredecesor) {
         for (int i = 0; i < predecessors.size(); i++) {
-            if(predecessors.get(i).getId() == idPredecesor){
+            if (predecessors.get(i).getId() == idPredecesor) {
                 predecessors.remove(predecessors.get(i));
             }
         }

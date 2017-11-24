@@ -9,6 +9,7 @@ import java.util.Arrays;
 public class GreedySolver {
     public static int currentTime = 0;
 
+
     public static void solve(Schedule schedule){
         Job[] jobs = schedule.getJobs();
         Resource[] resources = schedule.getResources();
