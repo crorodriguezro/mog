@@ -1,5 +1,7 @@
 import io.ParseFile;
-import model.Scheduler;
+import model.Schedule;
+import solvers.GreedySolver;
+import solvers.GreedySolver2;
 
 public class Main {
 
@@ -9,6 +11,8 @@ public class Main {
     public static void main(String[] args) {
         ParseFile reader = new ParseFile();
         // Procesa el archivo
-        Scheduler schedule = reader.processFile(DEFINITION_FILE_CATALOG + DEFINITION_FILE);
+        Schedule schedule = reader.processFile(DEFINITION_FILE_CATALOG + DEFINITION_FILE);
+
+        GreedySolver2.solve(schedule);
     }
 }

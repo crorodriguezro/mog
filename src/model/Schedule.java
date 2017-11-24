@@ -1,12 +1,12 @@
 package model;
 
-public class Scheduler {
+public class Schedule {
 
     private Job[] jobs;
 
     private Resource[] resources;
 
-    public Scheduler(Job[] jobs, Resource[] resources) {
+    public Schedule(Job[] jobs, Resource[] resources) {
         this.jobs = jobs;
         this.resources = resources;
     }

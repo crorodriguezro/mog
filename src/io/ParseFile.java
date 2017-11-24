@@ -2,7 +2,7 @@ package io;
 
 import model.Resource;
 import model.ResourceType;
-import model.Scheduler;
+import model.Schedule;
 import model.Job;
 
 import java.io.*;
@@ -13,9 +13,9 @@ public class ParseFile {
 
     private static final Logger LOGGER = Logger.getLogger(ParseFile.class.getName());
 
-    public Scheduler processFile(String fileName) {
+    public Schedule processFile(String fileName) {
         // Represents the read info
-        Scheduler schedule;
+        Schedule schedule;
 
         // Ayuda a almacenar las lineas leidas
         BufferedReader reader;
@@ -50,7 +50,7 @@ public class ParseFile {
 
             Resource[] resources = readTotalResources(reader);
             // Creamos el Scheduler con los trabajos y las tareas
-            schedule = new Scheduler(jobs, resources);
+            schedule = new Schedule(jobs, resources);
 
         } catch (IOException e) {
             LOGGER.log(Level.FINE, e.toString());
@@ -113,7 +113,7 @@ public class ParseFile {
      * @throws IOException when file is in the wrong format
      */
     private Job[] readJobWithSuccessors(BufferedReader reader, int numTasks) throws IOException {
-        Job[] tasks = new Job[numTasks];
+        Job[] jobs = new Job[numTasks];
         String line;
         String[] parts;
         int id;
@@ -121,35 +121,49 @@ public class ParseFile {
 
         for (int i = 0; i < numTasks; ++i) {
             line = reader.readLine();
-
             parts = line.split("\\s+");
             id = Integer.parseInt(parts[1]);
             successors = readSuccessors(parts);
+            Job currentJob;
 
-            tasks[i] = new Job(id,-1, -1, successors, null);
+            if (jobs[id - 1] == null) {
+                currentJob = new Job(id,-1, -1, null);
+            }else {
+                currentJob = jobs[id - 1];
+            }
+
+            for (int successorId : successors) {
+                if (jobs[successorId - 1] == null) {
+                    Job successor = new Job(successorId);
+                    successor.addPredecessor(currentJob);
+                    jobs[successorId - 1] = successor;
+                    currentJob.addSuccessor(successor);
+                } else {
+                    jobs[successorId - 1].addPredecessor(currentJob);
+                    currentJob.addSuccessor(jobs[successorId - 1]);
+                }
+            }
+            jobs[i] = currentJob;
         }
 
-        return tasks;
+        return jobs;
     }
 
     private Job[] readTimeAndResources(BufferedReader reader, int jobsAmount, Job[] jobs) throws IOException {
-        Job[] newJobs = new Job[jobsAmount];
         String line;
         String[] parts;
-        int id;
         int duration;
         int[] resources;
 
         for (int i = 0; i < jobsAmount; ++i) {
             line = reader.readLine();
             parts = line.split("\\s+");
-            id = Integer.parseInt(parts[2]);
             duration = Integer.parseInt(parts[3]);
             resources = readResources (parts);
-            newJobs[i] = new Job(id, duration, -1, jobs[i].getSuccessors(), resources);
+            jobs[i].setDuration(duration);
+            jobs[i].setResources(resources);
         }
-
-        return newJobs;
+        return jobs;
     }
 
     /**
