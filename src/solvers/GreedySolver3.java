@@ -78,8 +78,8 @@ public class GreedySolver3 {
         int nextT = Integer.MAX_VALUE;
         Job finishedJob = null;
         for (int i = 0; i < inProgressJobs.size(); i++) {
-            if (inProgressJobs.get(i).getFinish() < nextT) {
-                nextT = inProgressJobs.get(i).getFinish();
+            if (inProgressJobs.get(i).getFinishTime() < nextT) {
+                nextT = inProgressJobs.get(i).getFinishTime();
                 finishedJob = inProgressJobs.get(i);
             }
         }

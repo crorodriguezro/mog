@@ -2,13 +2,14 @@ package model;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 public class Job {
     private int id;
     private int duration;
-    private int start;
+    private int startTime;
 
-    private int finish;
+    private int finishTime;
 
     private int[] resources;
     private List<Job> predecessors = new ArrayList<>();
@@ -17,20 +18,20 @@ public class Job {
         this.id = id;
     }
 
-    public Job(int id, int duration, int start, int[] resources) {
+    public Job(int id, int duration, int startTime, int[] resources) {
         this.id = id;
         this.duration = duration;
-        this.start = start;
+        this.startTime = startTime;
         this.resources = resources;
     }
 
     public void start(int t) {
-        this.start = t;
-        this.finish = t + duration;
+        this.startTime = t;
+        this.finishTime = t + duration;
     }
 
-    public int getFinish() {
-        return finish;
+    public int getFinishTime() {
+        return finishTime;
     }
 
     public int getId() { return id; }
@@ -45,14 +46,6 @@ public class Job {
 
     public void setDuration(int duration) {
         this.duration = duration;
-    }
-
-    public int getStart() {
-        return start;
-    }
-
-    public void setStart(int start) {
-        this.start = start;
     }
 
     public int[] getResources() {
@@ -85,5 +78,31 @@ public class Job {
                 predecessors.remove(predecessors.get(i));
             }
         }
+    }
+
+    @Override
+    public String toString() {
+        return "Job{" +
+            "id=" + id +
+            ", startTime=" + startTime +
+            ", finishTime=" + finishTime +
+            '}';
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        Job job = (Job) o;
+        return id == job.id;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id);
     }
 }

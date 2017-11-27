@@ -35,4 +35,12 @@ public class Resource implements Cloneable
     {
         this.resourceType = resourceType;
     }
+
+    @Override
+    public String toString() {
+        return "Resource{" +
+            "amount=" + amount +
+            ", resourceType='" + resourceType + '\'' +
+            '}';
+    }
 }
