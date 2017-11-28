@@ -3,26 +3,29 @@ package model;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.Random;
 
 public class Job {
     private int id;
     private int duration;
     private int startTime;
-
     private int finishTime;
-
     private int[] resources;
+    private int weight;
     private List<Job> predecessors = new ArrayList<>();
     private List<Job> successors = new ArrayList<>();
     public Job(int id) {
         this.id = id;
     }
 
+    private static Random random = new Random();
+
     public Job(int id, int duration, int startTime, int[] resources) {
         this.id = id;
         this.duration = duration;
         this.startTime = startTime;
         this.resources = resources;
+        weight = random.nextInt(1000);
     }
 
     public void start(int t) {
@@ -46,6 +49,10 @@ public class Job {
 
     public void setDuration(int duration) {
         this.duration = duration;
+    }
+
+    public int getWeight() {
+        return weight;
     }
 
     public int[] getResources() {

@@ -1,6 +1,8 @@
 import io.ParseFile;
 import model.Schedule;
-import solvers.GreedySolver2;
+import solvers.GreedySolver;
+import solvers.GreedySolverRandom;
+import solvers.Solver;
 
 public class Main {
 
@@ -12,7 +14,7 @@ public class Main {
         // Procesa el archivo
         Schedule schedule = reader.processFile(DEFINITION_FILE_CATALOG + DEFINITION_FILE);
 
-        GreedySolver2 solver = new GreedySolver2();
+        Solver solver = new GreedySolverRandom();
         solver.solve(schedule);
     }
 }
