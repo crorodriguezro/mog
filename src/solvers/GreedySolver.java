@@ -22,7 +22,9 @@ public class GreedySolver implements Solver {
   Set<Job> availableJobs = new HashSet<>();
   Resource[] resources;
 
-  public void solve(Schedule schedule) {
+  private List<Job> sequence = new ArrayList<>();
+
+  public List<Job> solve(Schedule schedule) {
     List<Job> jobs = Arrays.asList(schedule.getJobs());
     resources = schedule.getResources();
     Job currentJob = jobs.get(0);
@@ -32,6 +34,7 @@ public class GreedySolver implements Solver {
       startNextJobs();
       pushWorld();
     }
+    return sequence;
   }
 
   List<Job> getDoableJobs(Collection<Job> jobs) {
@@ -63,6 +66,7 @@ public class GreedySolver implements Solver {
     availableJobs.remove(job);
     jobsInProgress.add(job);
     job.start(worldTime);
+    sequence.add(job);
 //    System.out.println("Available Resources:");
 //    Arrays.asList(resources).stream().forEach(System.out::println);
     System.out.println("Started Job: " + job);
@@ -93,7 +97,7 @@ public class GreedySolver implements Solver {
     availableJobs.addAll(successorJobs);
   };
 
-  void pushWorld() {
+  private void pushWorld() {
     Job nextJobToFinish = jobsInProgress.stream()
         .min(Comparator.comparingInt(Job::getFinishTime))
         .get();

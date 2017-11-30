@@ -6,22 +6,22 @@ import java.util.Objects;
 import java.util.Random;
 import java.util.stream.Collectors;
 
-public class Job {
+public class JobV {
     private int id;
     private int duration;
     private int startTime;
     private int finishTime;
     private int[] resources;
     private int weight;
-    private List<Job> predecessors = new ArrayList<>();
-    private List<Job> successors = new ArrayList<>();
-    public Job(int id) {
+    private List<JobV> predecessors = new ArrayList<>();
+    private List<JobV> successors = new ArrayList<>();
+    public JobV(int id) {
         this.id = id;
     }
 
     private static Random random = new Random();
 
-    public Job(int id, int duration, int startTime, int[] resources) {
+    public JobV(int id, int duration, int startTime, int[] resources) {
         this.id = id;
         this.duration = duration;
         this.startTime = startTime;
@@ -29,13 +29,15 @@ public class Job {
         weight = random.nextInt(1000);
     }
 
-    public Job(Job job) {
+    public JobV(JobV job) {
         this.id = job.id;
         this.duration = job.duration;
+        this.startTime = job.duration;
+        this.finishTime = job.finishTime;
         this.resources = job.resources;
         this.weight = job.weight;
-        this.predecessors = job.predecessors;
-        this.successors = job.successors;
+        this.predecessors = job.predecessors.stream().map(JobV::new).collect(Collectors.toList());
+//        this.successors = job.successors.stream().map(Job::new).collect(Collectors.toList());;
     }
 
     public void start(int t) {
@@ -73,19 +75,19 @@ public class Job {
         this.resources = resources;
     }
 
-    public List<Job> getPredecessors() {
+    public List<JobV> getPredecessors() {
         return predecessors;
     }
 
-    public List<Job> getSuccessors() {
+    public List<JobV> getSuccessors() {
         return successors;
     }
 
-    public void addPredecessor(Job predecessor) {
+    public void addPredecessor(JobV predecessor) {
         predecessors.add(predecessor);
     }
 
-    public void addSuccessor(Job successor) {
+    public void addSuccessor(JobV successor) {
         successors.add(successor);
     }
 
@@ -118,7 +120,7 @@ public class Job {
         if (o == null || getClass() != o.getClass()) {
             return false;
         }
-        Job job = (Job) o;
+        JobV job = (JobV) o;
         return id == job.id;
     }
 

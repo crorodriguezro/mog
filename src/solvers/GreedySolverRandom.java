@@ -5,7 +5,6 @@ import java.util.List;
 import java.util.Random;
 import java.util.stream.Collectors;
 import model.Job;
-import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 public class GreedySolverRandom extends GreedySolver {
 
@@ -31,24 +30,33 @@ public class GreedySolverRandom extends GreedySolver {
     List<Job> sortedJobs = getSortedJobsByMethod(doableJobs, method);
 
     List<Job> shrinkList;
-    int high = sortedJobs.size() + 1;
-    int low = 1;
-    int maxRandom = Integer.max(1, high - low);
-    int shrinkListMaxIndex = random.nextInt(maxRandom) + low;
     // "sorteJobs" es la lista de trabajos ya ordenada
     // "shrinkListMaxIndex" representa el numero de items que vamos a coger la cantidad de trabajos disponibles
     // Sacamos una sublista escogiendo los primeros "shrinkListMaxIndex" items deacuerdo al random de %
-// Todo falta el random que selecciona un trabajo al azar de la lista shrinkList
+    int shrinkListSize = random.nextInt(sortedJobs.size());
+    int shrinkListMaxIndex = shrinkListSize == 0 ? 1 : shrinkListSize;
     shrinkList = sortedJobs.subList(0, shrinkListMaxIndex);
     //Buscamos trabajos hasta que ya no queden mas recursos disponibles o mas trabajos
+    int jobTodoIndex;
     while (shrinkList.size() > 0) {
-      startJob(shrinkList.get(0));
-      shrinkList.remove(shrinkList.get(0));
+      jobTodoIndex = random.nextInt(shrinkList.size());
+      startJob(shrinkList.get(jobTodoIndex));
+      shrinkList.remove(shrinkList.get(jobTodoIndex));
       // Vamos a quitar de la lista "shrinkList" el trabajo iniciado
-// Todo se debe borrar la lista y volver a realizar el ciclo en el mismo p// eriodo de tiempo hasta que no
-// Todo tengamos mas recursos o mas trabajos disponibles
       doableJobs = getDoableJobs(shrinkList);
-      shrinkList = getSortedJobsByMethod(doableJobs, method);
+
+      // Si ya no hay trabajos que se puedan haccer entoncnes no sasalimos del ciclo
+      if(doableJobs.size() == 0){
+        break;
+      }
+      // "sorteJobs" es la lista de trabajos ya ordenada
+      // "shrinkListMaxIndex" representa el numero de items que vamos a coger la cantidad de trabajos disponibles
+      // Sacamos una sublista escogiendo los primeros "shrinkListMaxIndex" items deacuerdo al random de %
+      method = random.nextInt(3);
+      sortedJobs = getSortedJobsByMethod(doableJobs, method);
+      shrinkListSize = random.nextInt(sortedJobs.size());
+      shrinkListMaxIndex = shrinkListSize == 0 ? 1 : shrinkListSize;
+      shrinkList = sortedJobs.subList(0, shrinkListMaxIndex);
     }
   }
 

@@ -1,7 +1,9 @@
 package solvers;
 
+import java.util.List;
+import model.Job;
 import model.Schedule;
 
 public interface Solver {
-  void solve(Schedule schedule);
+  List<Job> solve(Schedule schedule);
 }
