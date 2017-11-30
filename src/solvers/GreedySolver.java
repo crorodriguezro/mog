@@ -52,11 +52,11 @@ public class GreedySolver implements Solver {
   };
 
   void startNextJobs() {
-    List<Job> doableJobs = getDoableJobs(availableJobs);
+    /*List<Job> doableJobs = getDoableJobs(availableJobs);
     while (doableJobs.size() > 0){
       startJob(doableJobs.get(0));
       doableJobs = getDoableJobs(availableJobs);
-    }
+    }*/
   }
 
   void startJob(Job job) {
