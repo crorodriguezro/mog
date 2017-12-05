@@ -122,18 +122,6 @@ public class Main {
     return new Solution(sequence, cMax, twst);
   }
 
-  private static List<Job> getClonedJobs(ParseFile reader, List<Job> sequence) {
-    Schedule schedule2 = reader.processFile(DEFINITION_FILE_CATALOG + DEFINITION_FILE,
-        DEFINITION_FILE_CATALOG + WEIGHT_FILE);
-    List<Job> auxJobs = Arrays.asList(schedule2.getJobs());
-    return sequence.stream().map(job -> {
-      Job newJob = auxJobs.stream().filter(j -> j.getId() == job.getId()).findFirst().get();
-      newJob.setFinishTime(job.getFinishTime());
-      newJob.setStartTime(job.getStartTime());
-      return newJob;
-    }).collect(Collectors.toList());
-  }
-
   private static List<Job> getClonedJobs(List<Job> sequence) {
     List<Job> clonedJobs = sequence.stream().map(Job::new).collect(Collectors.toList());
     clonedJobs.forEach(nj -> {
