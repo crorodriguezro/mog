@@ -24,7 +24,7 @@ public class Main {
   private static Set<Solution> bestSolutions = new HashSet<>();
 
   public static void main(String[] args) {
-    for (int i = 0; i < 500; i++) {
+    for (int i = 0; i < 20; i++) {
       ParseFile reader = new ParseFile();
       // Procesa el archivo
       Schedule schedule = reader.processFile(DEFINITION_FILE_CATALOG + DEFINITION_FILE, DEFINITION_FILE_CATALOG + WEIGHT_FILE);
