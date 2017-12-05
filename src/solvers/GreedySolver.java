@@ -70,7 +70,7 @@ public class GreedySolver implements Solver {
     sequence.add(job);
 //    System.out.println("Available Resources:");
 //    Arrays.asList(resources).stream().forEach(System.out::println);
-    System.out.println("Started Job: " + job);
+    //System.out.println("Started Job: " + job);
 //    System.out.println();
     int[] jobResources = job.getResources();
     for (int i = 0; i < jobResources.length; i++) {

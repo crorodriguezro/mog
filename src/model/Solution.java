@@ -30,6 +30,7 @@ public class Solution {
   @Override
   public String toString() {
     return "Solution{" +
+        "sequence=" + sequence +
         ", cMax=" + cMax +
         ", twst=" + twst +
         '}';

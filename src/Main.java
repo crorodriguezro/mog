@@ -40,7 +40,7 @@ public class Main {
       }
       int solutionsCounter = 0;
       int triesCounter = 0;
-      printSequenceJ(sequence);
+      //printSequenceJ(sequence);
       while (solutionsCounter < neighborhoodSize && triesCounter < 1000000) {
         try {
           List<Job> clonedSequence = getClonedJobs(sequence);
@@ -72,7 +72,7 @@ public class Main {
 
   private static void test() {
     System.out.println("Encontrar mejores soluciones");
-    allSolutions.forEach(solution -> printSequence(solution.getSequence()));
+    //allSolutions.forEach(solution -> printSequence(solution.getSequence()));
     Solution bestOverallSolution = new Solution(null, Integer.MAX_VALUE, Integer.MAX_VALUE);
     Solution bestCMaxSolution = new Solution(null, Integer.MAX_VALUE, Integer.MAX_VALUE);
     Solution bestTwstSolution = new Solution(null, Integer.MAX_VALUE, Integer.MAX_VALUE);
@@ -106,9 +106,16 @@ public class Main {
       }
     }
 
-    allSolutions.forEach(solution -> {
-      System.out.println(solution.getcMax() + "\t" + solution.getTwst());
+    System.out.println("Mejores soluciones: ");
+
+    bestSolutions.forEach(solution -> {
+      System.out.println(solution.toString());
+      printSequence(solution.getSequence());
     });
+
+//    allSolutions.forEach(solution -> {
+//      System.out.println(solution.getcMax() + "\t" + solution.getTwst());
+//    });
     System.out.printf("");
   }
 
@@ -139,7 +146,7 @@ public class Main {
     List<Job> newSequence = new ArrayList<>(sequence);
     int exchange1;
     int exchange2;
-    if (false) {
+    if (method == 0) {
       exchange1 = random.nextInt(sequence.size());
       exchange2 = random.nextInt(sequence.size());
       Job job1 = newSequence.get(exchange1);
@@ -155,8 +162,8 @@ public class Main {
 
 //    exchange1 = random.nextInt(sequence.size());
 //    int insertIndex = random.nextInt(sequence.size());
-    exchange1 = 0;
-    int insertIndex = 0;
+    exchange1 = random.nextInt(sequence.size());
+    int insertIndex = random.nextInt(sequence.size());
     Job job1 = newSequence.remove(exchange1);
     job1.setStartTime(-1);
     job1.setFinishTime(-1);
@@ -168,7 +175,6 @@ public class Main {
   }
 
   private static void printSequence(List<SimpleJob> simpleJobs) {
-    System.out.print(simpleJobs.get(simpleJobs.size() - 1).getFinishTime() + " ");
     for (SimpleJob job : simpleJobs) {
       System.out.print(job.getId() + " ");
     }
