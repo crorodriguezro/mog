@@ -11,6 +11,12 @@ public class Resource implements Cloneable
         this.resourceType = resourceType;
     }
 
+    public Resource(Resource resource)
+    {
+        this.amount = resource.amount;
+        this.resourceType = resource.resourceType;
+    }
+
     public Resource(String resourceType)
     {
         this.resourceType = resourceType;

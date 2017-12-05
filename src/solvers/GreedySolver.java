@@ -22,6 +22,7 @@ public class GreedySolver implements Solver {
   Set<Job> availableJobs = new HashSet<>();
   Resource[] resources;
 
+
   private List<Job> sequence = new ArrayList<>();
 
   public List<Job> solve(Schedule schedule) {

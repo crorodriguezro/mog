@@ -26,6 +26,19 @@ public class GreedySolverRandom extends GreedySolver {
     if (doableJobs.size() == 0) {
       return;
     }
+
+    int[] resourcesNeeded = new int[resources.length];
+    for (int i = 0; i < resourcesNeeded.length; i++) {
+      int finalI = i;
+      resourcesNeeded[finalI] = doableJobs.stream()
+          .mapToInt(job -> job.getResources()[finalI]).sum();
+    }
+
+    if(areAvailableResources(resourcesNeeded)){
+      doableJobs.forEach(this::startJob);
+      return;
+    }
+
     // Ordenamos los trabajos segun el metodo
     List<Job> sortedJobs = getSortedJobsByMethod(doableJobs, method);
 
@@ -58,6 +71,15 @@ public class GreedySolverRandom extends GreedySolver {
       shrinkListMaxIndex = shrinkListSize == 0 ? 1 : shrinkListSize;
       shrinkList = sortedJobs.subList(0, shrinkListMaxIndex);
     }
+  }
+
+  private boolean areAvailableResources(int[] resources) {
+    for (int j = 0; j < resources.length; j++) {
+      if (resources[j] > this.resources[j].getAmount()) {
+        return false;
+      }
+    }
+    return true;
   }
 
   private List<Job> getSortedJobsByMethod(List<Job> doableJobs, int method) {

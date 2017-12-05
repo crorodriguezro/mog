@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Random;
-import java.util.stream.Collectors;
 
 public class Job {
     private int id;
@@ -17,6 +16,7 @@ public class Job {
     private List<Job> successors = new ArrayList<>();
     public Job(int id) {
         this.id = id;
+//        weight = random.nextInt(1000);
     }
 
     private static Random random = new Random();
@@ -26,16 +26,16 @@ public class Job {
         this.duration = duration;
         this.startTime = startTime;
         this.resources = resources;
-        weight = random.nextInt(1000);
+//        weight = random.nextInt(1000);
     }
 
     public Job(Job job) {
         this.id = job.id;
         this.duration = job.duration;
+        this.startTime = job.startTime;
+        this.finishTime = job.finishTime;
         this.resources = job.resources;
         this.weight = job.weight;
-        this.predecessors = job.predecessors;
-        this.successors = job.successors;
     }
 
     public void start(int t) {
@@ -81,24 +81,33 @@ public class Job {
         return successors;
     }
 
-    public void addPredecessor(Job predecessor) {
-        predecessors.add(predecessor);
-    }
-
     public void addSuccessor(Job successor) {
         successors.add(successor);
+        successor.predecessors.add(this);
     }
 
     public void setFinishTime(int finishTime) {
         this.finishTime = finishTime;
     }
 
-    public void removePredecessor(int idPredecesor) {
+    public void removePredecessor(int idPredecessor) {
         for (int i = 0; i < predecessors.size(); i++) {
-            if (predecessors.get(i).getId() == idPredecesor) {
+            if (predecessors.get(i).getId() == idPredecessor) {
                 predecessors.remove(predecessors.get(i));
             }
         }
+    }
+
+    public int getStartTime() {
+        return startTime;
+    }
+
+    public void setStartTime(int startTime) {
+        this.startTime = startTime;
+    }
+
+    public void setWeight(int weight) {
+        this.weight = weight;
     }
 
     @Override

@@ -13,15 +13,17 @@ public class ParseFile {
 
     private static final Logger LOGGER = Logger.getLogger(ParseFile.class.getName());
 
-    public Schedule processFile(String fileName) {
+    public Schedule processFile(String fileName, String weightFile) {
         // Represents the read info
         Schedule schedule;
 
         // Ayuda a almacenar las lineas leidas
-        BufferedReader reader;
+        BufferedReader mainFileReader;
+        BufferedReader weightFileReader;
         try {
             //Insanciamos el reader con el nombre del archivo
-            reader = new BufferedReader(new FileReader(fileName));
+            mainFileReader = new BufferedReader(new FileReader(fileName));
+            weightFileReader = new BufferedReader(new FileReader(weightFile));
         } catch (FileNotFoundException e) {
             LOGGER.log(Level.FINE, e.toString());
             return null;
@@ -32,23 +34,25 @@ public class ParseFile {
         Job[] jobsWithSuccessors;
         Job[] jobs;
         try {
-            line = reader.readLine();
+            line = mainFileReader.readLine();
             // Leemos numero total de tareas
-            jobsAmount = readNumber(reader, line, "jobs");
+            jobsAmount = readNumber(mainFileReader, line, "jobs");
             // Nos saltamos hasta RESOURCES
-            skipTo(reader, line, "RESOURCES");
+            skipTo(mainFileReader, line, "RESOURCES");
             // Leemos los recursos
-            resourceTypesAmount = readResourceTypesAmount(reader);
+            resourceTypesAmount = readResourceTypesAmount(mainFileReader);
             // Nos saltamos hasta jobnr
-            skipTo(reader, line, "jobnr.");
+            skipTo(mainFileReader, line, "jobnr.");
             // Leemos los trabajos
-            jobsWithSuccessors = readJobWithSuccessors(reader, jobsAmount);
+            jobsWithSuccessors = readJobWithSuccessors(mainFileReader, jobsAmount);
             //Leemos Time And Resources
-            skipTo(reader,line,"----");
-            jobs = readTimeAndResources(reader, jobsAmount, jobsWithSuccessors);
-            skipTo(reader,line,"RESOURCEAVAILABILITIES");
+            skipTo(mainFileReader,line,"----");
+            jobs = readTimeAndResources(mainFileReader, jobsAmount, jobsWithSuccessors);
+            skipTo(mainFileReader,line,"RESOURCEAVAILABILITIES");
 
-            Resource[] resources = readTotalResources(reader);
+            jobs = readWeights(weightFileReader, jobsAmount, jobs);
+
+            Resource[] resources = readTotalResources(mainFileReader);
             // Creamos el Scheduler con los trabajos y las tareas
             schedule = new Schedule(jobs, resources);
 
@@ -56,9 +60,20 @@ public class ParseFile {
             LOGGER.log(Level.FINE, e.toString());
             return null;
         } finally {
-            closeReader(reader);
+            closeReader(mainFileReader);
         }
         return schedule;
+    }
+
+    private Job[] readWeights(BufferedReader weightFileReader, int jobsAmount, Job[] jobs)
+        throws IOException {
+        String line;
+        for (int i = 0; i < jobsAmount; i++) {
+            line = weightFileReader.readLine();
+            int weight = Integer.valueOf(line);
+            jobs[i].setWeight(weight);
+        }
+        return jobs;
     }
 
     /**
@@ -135,11 +150,9 @@ public class ParseFile {
             for (int successorId : successors) {
                 if (jobs[successorId - 1] == null) {
                     Job successor = new Job(successorId);
-                    successor.addPredecessor(currentJob);
                     jobs[successorId - 1] = successor;
                     currentJob.addSuccessor(successor);
                 } else {
-                    jobs[successorId - 1].addPredecessor(currentJob);
                     currentJob.addSuccessor(jobs[successorId - 1]);
                 }
             }
