@@ -4,18 +4,22 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 
+/**
+ * Se alamacena secuencias "S" obtenidas, con el Cmax y el TWST de cada una.
+ */
+
 public class Solution {
-  private List<SimpleJob> sequence;
+  private List<SimpleActivitie> sequence;
   private int cMax;
   private int twst;
 
-  public Solution(List<SimpleJob> sequence, int cMax, int twst) {
+  public Solution(List<SimpleActivitie> sequence, int cMax, int twst) {
     this.sequence = sequence;
     this.cMax = cMax;
     this.twst = twst;
   }
 
-  public List<SimpleJob> getSequence() {
+  public List<SimpleActivitie> getSequence() {
     return sequence;
   }
 
@@ -60,7 +64,7 @@ public class Solution {
 
   @Override
   public int hashCode() {
-    int[] intSequence = sequence.stream().mapToInt(SimpleJob::getId).toArray();
+    int[] intSequence = sequence.stream().mapToInt(SimpleActivitie::getId).toArray();
     int sequenceHashCode = Arrays.hashCode(intSequence);
     return Objects.hash(sequenceHashCode, cMax, twst);
   }

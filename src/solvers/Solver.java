@@ -1,9 +1,10 @@
 package solvers;
 
 import java.util.List;
-import model.Job;
+
+import model.Activity;
 import model.Schedule;
 
 public interface Solver {
-  List<Job> solve(Schedule schedule);
+  List<Activity> solve(Schedule schedule);
 }

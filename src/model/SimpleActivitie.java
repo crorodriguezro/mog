@@ -1,18 +1,18 @@
 package model;
 
-public class SimpleJob {
+public class SimpleActivitie {
     private int id;
     private int duration;
     private int startTime;
     private int finishTime;
     private int weight;
 
-    public SimpleJob(Job job) {
-        this.id = job.getId();
-        this.duration = job.getDuration();
-        this.startTime = job.getStartTime();
-        this.finishTime = job.getFinishTime();
-        this.weight = job.getWeight();
+    public SimpleActivitie(Activity activity) {
+        this.id = activity.getId();
+        this.duration = activity.getDuration();
+        this.startTime = activity.getStartTime();
+        this.finishTime = activity.getFinishTime();
+        this.weight = activity.getWeight();
     }
 
     public int getId() {
@@ -57,7 +57,7 @@ public class SimpleJob {
 
     @Override
     public String toString() {
-        return "SimpleJob{" +
+        return "SimpleActivitie{" +
             "id=" + id +
             ", duration=" + duration +
             ", startTime=" + startTime +

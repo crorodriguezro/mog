@@ -8,41 +8,47 @@ import java.util.List;
 import java.util.Optional;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
-import model.Job;
+
+import model.Activity;
 import model.Resource;
-import model.SimpleJob;
+import model.SimpleActivitie;
+
+/**
+ * Esta clase valida las secuencias "S*" que se obtienen, basado en las restricciones que presenta cada
+ * actividad, se deben cumplir las restricciones de precedencia y de recursos.
+ */
 
 public class Validator {
 
-  private List<SimpleJob> simpleJobs;
+  private List<SimpleActivitie> simpleActivities;
 
   private List<Resource> resources;
-  private List<Job> sequence;
-  private List<Job> jobsInProgress;
+  private List<Activity> sequence;
+  private List<Activity> jobsInProgresses;
   private int worldTime;
 
-  public Validator(Resource[] resources, List<Job> sequence) {
+  public Validator(Resource[] resources, List<Activity> sequence) {
     this.resources = Arrays.stream(resources)
         .map(Resource::new)
         .collect(Collectors.toList());
     this.sequence = sequence;
-    this.jobsInProgress = new ArrayList<>();
+    this.jobsInProgresses = new ArrayList<>();
     this.worldTime = 0;
   }
 
-  public List<SimpleJob> validate() {
+  public List<SimpleActivitie> validate() {
 //    System.out.println("Inicio");
-    simpleJobs = new ArrayList<>();
+    simpleActivities = new ArrayList<>();
     while (sequence.size() > 0) {
       if (sequence.get(0).getStartTime() != -1) {
-        List<Job> test = sequence.stream()
+        List<Activity> test = sequence.stream()
             .filter(job -> {
               return sequence.get(0).getStartTime() == job.getStartTime()
                   && job.getStartTime() >= worldTime;
             })
             .collect(Collectors.toList());
-        for (Job job : test) {
-          startJob(job);
+        for (Activity activity : test) {
+          startJob(activity);
         }
         pushWorld();
       } else {
@@ -55,22 +61,22 @@ public class Validator {
     });
 
     while (sequence.size() > 0) {
-      List<Job> doableJobs = getDoableJobsByPredecessors(sequence).stream()
-          .filter(doableJob -> jobsInProgress.stream()
+      List<Activity> doableActivities = getDoableJobsByPredecessors(sequence).stream()
+          .filter(doableJob -> jobsInProgresses.stream()
               .noneMatch(jip -> jip.getId() == doableJob.getId()))
           .collect(Collectors.toList());
 
-      List<Job> sequenceWithoutJobsInProgress = sequence.stream()
-          .filter(doableJob -> jobsInProgress.stream()
+      List<Activity> sequenceWithoutJobsInProgresses = sequence.stream()
+          .filter(doableJob -> jobsInProgresses.stream()
               .noneMatch(jip -> jip.getId() == doableJob.getId()))
           .collect(Collectors.toList());
 
       boolean hasPredecessorsInProgress = false;
-      for (int i = 0; i < doableJobs.size(); i++) {
-        if (doableJobs.get(i).getId() != sequenceWithoutJobsInProgress.get(i).getId()) {
-          List<Job> nextJobPredecessors = sequenceWithoutJobsInProgress.get(i).getPredecessors();
-          int predecessorsInProgress = nextJobPredecessors.stream()
-              .filter(jobsInProgress::contains)
+      for (int i = 0; i < doableActivities.size(); i++) {
+        if (doableActivities.get(i).getId() != sequenceWithoutJobsInProgresses.get(i).getId()) {
+          List<Activity> nextActivityPredecessors = sequenceWithoutJobsInProgresses.get(i).getPredecessors();
+          int predecessorsInProgress = nextActivityPredecessors.stream()
+              .filter(jobsInProgresses::contains)
               .toArray().length;
 
           if( predecessorsInProgress > 0){
@@ -80,40 +86,40 @@ public class Validator {
               throw new RuntimeException("No sirve la secuencia");
             }
           }
-          doableJobs = doableJobs.subList(0, i);
+          doableActivities = doableActivities.subList(0, i);
         }
       }
       if(!hasPredecessorsInProgress){
-        doableJobs = getDoableJobsByPredecessorsAndResources(doableJobs);
-        while (doableJobs.size() > 0) {
-          Job nextJob = doableJobs.get(0);
-          startJob(nextJob);
-          doableJobs = getDoableJobsByPredecessorsAndResources(doableJobs);
-          doableJobs.remove(nextJob);
+        doableActivities = getDoableJobsByPredecessorsAndResources(doableActivities);
+        while (doableActivities.size() > 0) {
+          Activity nextActivity = doableActivities.get(0);
+          startJob(nextActivity);
+          doableActivities = getDoableJobsByPredecessorsAndResources(doableActivities);
+          doableActivities.remove(nextActivity);
         }
-        if (jobsInProgress.size() == 0) {
+        if (jobsInProgresses.size() == 0) {
           System.out.println();
         }
       }
       pushWorld();
     }
-    return simpleJobs;
+    return simpleActivities;
   }
 
-  List<Job> getDoableJobsByPredecessors(Collection<Job> jobs) {
-    return jobs.stream()
+  List<Activity> getDoableJobsByPredecessors(Collection<Activity> activities) {
+    return activities.stream()
         .filter(job -> job.getPredecessors().size() == 0)
         .collect(Collectors.toList());
   }
 
-  List<Job> getDoableJobsByPredecessorsAndResources(Collection<Job> jobs) {
-    return jobs.stream()
+  List<Activity> getDoableJobsByPredecessorsAndResources(Collection<Activity> activities) {
+    return activities.stream()
         .filter(job -> job.getPredecessors().size() == 0)
         .filter(availableResourcesPredicate)
         .collect(Collectors.toList());
   }
 
-  Predicate<Job> availableResourcesPredicate = job -> {
+  Predicate<Activity> availableResourcesPredicate = job -> {
     int[] jobResources = job.getResources();
     for (int j = 0; j < jobResources.length; j++) {
       if (jobResources[j] > resources.get(j).getAmount()) {
@@ -123,15 +129,15 @@ public class Validator {
     return true;
   };
 
-  void startJob(Job job) {
-//    System.out.println("StartingJob: " + job.getId());
-    job.start(worldTime);
-    jobsInProgress.add(job);
-    simpleJobs.add(new SimpleJob(job));
-    if (job.getPredecessors().size() > 0) {
+  void startJob(Activity activity) {
+//    System.out.println("StartingJob: " + activity.getId());
+    activity.start(worldTime);
+    jobsInProgresses.add(activity);
+    simpleActivities.add(new SimpleActivitie(activity));
+    if (activity.getPredecessors().size() > 0) {
       throw new RuntimeException("El trabajo tiene predecesores");
     }
-    int[] jobResources = job.getResources();
+    int[] jobResources = activity.getResources();
     for (int i = 0; i < jobResources.length; i++) {
       int resourceAmount = resources.get(i).getAmount() - jobResources[i];
       if (resourceAmount < 0) {
@@ -141,41 +147,41 @@ public class Validator {
     }
   }
 
-  static List<Job> removePredecessor(Job completedJob) {
-    for (Job successor : completedJob.getSuccessors()) {
-      successor.removePredecessor(completedJob.getId());
+  static List<Activity> removePredecessor(Activity completedActivity) {
+    for (Activity successor : completedActivity.getSuccessors()) {
+      successor.removePredecessor(completedActivity.getId());
     }
-    return completedJob.getSuccessors();
+    return completedActivity.getSuccessors();
   }
 
   private void pushWorld() {
-    Optional<Job> nextFinishingJob = jobsInProgress.stream()
+    Optional<Activity> nextFinishingJob = jobsInProgresses.stream()
         .filter(job -> job.getFinishTime() != -1)
-        .min(Comparator.comparingInt(Job::getFinishTime));
+        .min(Comparator.comparingInt(Activity::getFinishTime));
 
     if (nextFinishingJob.isPresent()) {
       worldTime = nextFinishingJob.get().getFinishTime();
     } else {
       throw new RuntimeException("No sirve la secuencia");
     }
-    List<Job> finishedJobs = jobsInProgress.stream()
+    List<Activity> finishedActivities = jobsInProgresses.stream()
         .filter(job -> job.getFinishTime() == worldTime)
         .collect(Collectors.toList());
-    //finishedJobs.forEach(completeJob);
-    for (Job job : finishedJobs) {
-      finishJob(job);
+    //finishedActivities.forEach(completeJob);
+    for (Activity activity : finishedActivities) {
+      finishJob(activity);
     }
   }
 
-  private void finishJob(Job job) {
-    int[] jobResources = job.getResources();
+  private void finishJob(Activity activity) {
+    int[] jobResources = activity.getResources();
     for (int i = 0; i < jobResources.length; i++) {
       int resourceAmount = resources.get(i).getAmount() + jobResources[i];
       resources.get(i).setAmount(resourceAmount);
     }
-    job.setFinishTime(worldTime);
-    sequence.remove(job);
-    jobsInProgress.remove(job);
-    removePredecessor(job);
+    activity.setFinishTime(worldTime);
+    sequence.remove(activity);
+    jobsInProgresses.remove(activity);
+    removePredecessor(activity);
   }
 }

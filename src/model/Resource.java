@@ -1,5 +1,9 @@
 package model;
 
+
+/**
+ * Esta clase guarda los recursos y sus caracteristicas, la cantidad y el tipo
+ */
 public class Resource implements Cloneable
 {
     private int amount;

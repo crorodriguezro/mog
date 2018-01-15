@@ -79,7 +79,7 @@ hs_err_pid*
 
 # User-specific stuff:
 .idea/**/workspace.xml
-.idea/**/jobs.xml
+.idea/**/activities.xml
 .idea/dictionaries
 
 # Sensitive or high-churn files:

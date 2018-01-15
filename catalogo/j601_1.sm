@@ -3,7 +3,7 @@ file with basedata            : j60_17.bas
 initial value random generator: 26597
 ************************************************************************
 projects                      :  1
-jobs (incl. supersource/sink ):  62
+activities (incl. supersource/sink ):  62
 horizon                       :  329
 RESOURCES
   - renewable                 :  4   R
@@ -11,7 +11,7 @@ RESOURCES
   - doubly constrained        :  0   D
 ************************************************************************
 PROJECT INFORMATION:
-pronr.  #jobs rel.date duedate tardcost  MPM-Time
+pronr.  #activities rel.date duedate tardcost  MPM-Time
     1     60      0       77       50       77
 ************************************************************************
 PRECEDENCE RELATIONS:

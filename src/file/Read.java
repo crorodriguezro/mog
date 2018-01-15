@@ -1,18 +1,27 @@
-package io;
+package file;
 
+import model.Activity;
 import model.Resource;
 import model.ResourceType;
 import model.Schedule;
-import model.Job;
 
 import java.io.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-public class ParseFile {
+/**
+ * Esta clase se encarga de la lectura de los archivos planos de donde se toma la informacion de las actividades
+ */
+public class Read {
 
-    private static final Logger LOGGER = Logger.getLogger(ParseFile.class.getName());
+    private static final Logger LOGGER = Logger.getLogger(Read.class.getName());
 
+    /**
+     * Se toman los archivos iniciales y se inicia la lectura de estos
+     * @param fileName Nombre del archivo con las actividades
+     * @param weightFile Nombre del archivo con el peso de cada actividad
+     * @return No se retorna nada
+     */
     public Schedule processFile(String fileName, String weightFile) {
         // Represents the read info
         Schedule schedule;
@@ -21,7 +30,7 @@ public class ParseFile {
         BufferedReader mainFileReader;
         BufferedReader weightFileReader;
         try {
-            //Insanciamos el reader con el nombre del archivo
+            //Iniciamos el reader con el nombre del archivo
             mainFileReader = new BufferedReader(new FileReader(fileName));
             weightFileReader = new BufferedReader(new FileReader(weightFile));
         } catch (FileNotFoundException e) {
@@ -31,12 +40,12 @@ public class ParseFile {
         String line;
         int jobsAmount;
         int resourceTypesAmount;
-        Job[] jobsWithSuccessors;
-        Job[] jobs;
+        Activity[] jobsWithSuccessors;
+        Activity[] activities;
         try {
             line = mainFileReader.readLine();
             // Leemos numero total de tareas
-            jobsAmount = readNumber(mainFileReader, line, "jobs");
+            jobsAmount = readNumber(mainFileReader, line, "activities");
             // Nos saltamos hasta RESOURCES
             skipTo(mainFileReader, line, "RESOURCES");
             // Leemos los recursos
@@ -47,14 +56,14 @@ public class ParseFile {
             jobsWithSuccessors = readJobWithSuccessors(mainFileReader, jobsAmount);
             //Leemos Time And Resources
             skipTo(mainFileReader,line,"----");
-            jobs = readTimeAndResources(mainFileReader, jobsAmount, jobsWithSuccessors);
+            activities = readTimeAndResources(mainFileReader, jobsAmount, jobsWithSuccessors);
             skipTo(mainFileReader,line,"RESOURCEAVAILABILITIES");
 
-            jobs = readWeights(weightFileReader, jobsAmount, jobs);
+            activities = readWeights(weightFileReader, jobsAmount, activities);
 
             Resource[] resources = readTotalResources(mainFileReader);
             // Creamos el Scheduler con los trabajos y las tareas
-            schedule = new Schedule(jobs, resources);
+            schedule = new Schedule(activities, resources);
 
         } catch (IOException e) {
             LOGGER.log(Level.FINE, e.toString());
@@ -65,24 +74,32 @@ public class ParseFile {
         return schedule;
     }
 
-    private Job[] readWeights(BufferedReader weightFileReader, int jobsAmount, Job[] jobs)
+    /**
+     * Se toma la informacion de los pesos anteriormente leida y se asosia a cada actividad
+     * @param weightFileReader
+     * @param activitiesAmount
+     * @param activities
+     * @return
+     * @throws IOException
+     */
+    private Activity[] readWeights(BufferedReader weightFileReader, int activitiesAmount, Activity[] activities)
         throws IOException {
         String line;
-        for (int i = 0; i < jobsAmount; i++) {
+        for (int i = 0; i < activitiesAmount; i++) {
             line = weightFileReader.readLine();
             int weight = Integer.valueOf(line);
-            jobs[i].setWeight(weight);
+            activities[i].setWeight(weight);
         }
-        return jobs;
+        return activities;
     }
 
     /**
-     * Reads the number of tasks or resources in the schedule.
+     * Lee el numero de actividades y recursos.
      *
-     * @param reader used reader
-     * @param line   current line of the file
-     * @param toRead determines what to processFile, either "Tasks" or "Resources"
-     * @return number of tasks or resources
+     * @param reader
+     * @param line   linea actual del archivo
+     * @param toRead determina que lee, actividades o recursos
+     * @return el numero de actividades o de recursos
      * @throws IOException when there is no <code>toRead in the file</code>
      */
     private int readNumber(BufferedReader reader, String line, String toRead) throws IOException {
@@ -120,15 +137,15 @@ public class ParseFile {
     }
 
     /**
-     * Reads tasks from the file.
+     * Lee las actividades del archivo plano.
      *
      * @param reader   used reader
-     * @param numTasks number of tasks
-     * @return array of tasks
+     * @param numTasks numero de actividades
+     * @return arreglo de actividades
      * @throws IOException when file is in the wrong format
      */
-    private Job[] readJobWithSuccessors(BufferedReader reader, int numTasks) throws IOException {
-        Job[] jobs = new Job[numTasks];
+    private Activity[] readJobWithSuccessors(BufferedReader reader, int numTasks) throws IOException {
+        Activity[] activities = new Activity[numTasks];
         String line;
         String[] parts;
         int id;
@@ -139,30 +156,30 @@ public class ParseFile {
             parts = line.split("\\s+");
             id = Integer.parseInt(parts[1]);
             successors = readSuccessors(parts);
-            Job currentJob;
+            Activity currentActivity;
 
-            if (jobs[id - 1] == null) {
-                currentJob = new Job(id,-1, -1, null);
+            if (activities[id - 1] == null) {
+                currentActivity = new Activity(id,-1, -1, null);
             }else {
-                currentJob = jobs[id - 1];
+                currentActivity = activities[id - 1];
             }
 
             for (int successorId : successors) {
-                if (jobs[successorId - 1] == null) {
-                    Job successor = new Job(successorId);
-                    jobs[successorId - 1] = successor;
-                    currentJob.addSuccessor(successor);
+                if (activities[successorId - 1] == null) {
+                    Activity successor = new Activity(successorId);
+                    activities[successorId - 1] = successor;
+                    currentActivity.addSuccessor(successor);
                 } else {
-                    currentJob.addSuccessor(jobs[successorId - 1]);
+                    currentActivity.addSuccessor(activities[successorId - 1]);
                 }
             }
-            jobs[i] = currentJob;
+            activities[i] = currentActivity;
         }
 
-        return jobs;
+        return activities;
     }
 
-    private Job[] readTimeAndResources(BufferedReader reader, int jobsAmount, Job[] jobs) throws IOException {
+    private Activity[] readTimeAndResources(BufferedReader reader, int jobsAmount, Activity[] activities) throws IOException {
         String line;
         String[] parts;
         int duration;
@@ -173,17 +190,17 @@ public class ParseFile {
             parts = line.split("\\s+");
             duration = Integer.parseInt(parts[3]);
             resources = readResources (parts);
-            jobs[i].setDuration(duration);
-            jobs[i].setResources(resources);
+            activities[i].setDuration(duration);
+            activities[i].setResources(resources);
         }
-        return jobs;
+        return activities;
     }
 
     /**
-     * Creates an array of successors from parts containing the ids.
+     * Crea un arreglo con los sucesores de cada actividad.
      *
-     * @param parts        line processFile from the file containing ids of the successors
-     * @return array of successors
+     * @param parts        linea del formato que contiene los sucesores
+     * @return arreglo de los sucesores
      */
     private int[] readSuccessors(String[] parts) {
         int[] successors = new int[parts.length - 4];
@@ -204,12 +221,12 @@ public class ParseFile {
         return resources;
     }
     /**
-     * Skips the reader to the line starting with the desired string
+     * Salta el lector hasta la linea que comiensa con el texto descrito
      *
      * @param reader  used reader
-     * @param line    current line of the file
-     * @param desired desired start of the line
-     * @return line, that starts with <code>desired</code> String
+     * @param line    linea actual del archivo
+     * @param desired texto deseado de encontrar en la linea
+     * @return linea, esta inicia con <code>desired</code> String
      * @throws IOException exception during IO operation
      */
     private String skipTo(BufferedReader reader, String line, String desired) throws IOException {

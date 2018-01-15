@@ -1,19 +1,27 @@
-import io.ParseFile;
+import file.Read;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Random;
 import java.util.Set;
 import java.util.stream.Collectors;
-import model.Job;
+
+import model.Activity;
 import model.Schedule;
-import model.SimpleJob;
+import model.SimpleActivitie;
 import model.Solution;
 import solvers.GreedySolverRandom;
 import solvers.Solver;
 import validator.Validator;
 
+/**
+ * En el main se van a encontrar los archivos fuente, los cuales contienen la informacion de las actividades.
+ * La informacion de los pesos asignados a cada actividad.
+ * El metodo por el que se van a generar las "S".
+ * EL metodo por el que van a ser generados los "S*"
+ * El criterio de detencion del programa.
+ * El nombre del archivo de salida.
+ */
 public class Main {
 
   private static final String DEFINITION_FILE_CATALOG = "catalogo/";
@@ -24,13 +32,13 @@ public class Main {
   private static Set<Solution> bestSolutions = new HashSet<>();
 
   public static void main(String[] args) {
-    for (int i = 0; i < 20; i++) {
-      ParseFile reader = new ParseFile();
+    for (int i = 0; i < 15; i++) {
+      Read reader = new Read();
       // Procesa el archivo
       Schedule schedule = reader.processFile(DEFINITION_FILE_CATALOG + DEFINITION_FILE, DEFINITION_FILE_CATALOG + WEIGHT_FILE);
 
       Solver solver = new GreedySolverRandom();
-      List<Job> sequence = solver.solve(schedule);
+      List<Activity> sequence = solver.solve(schedule);
       int method = random.nextInt(2);
       int neighborhoodSize;
       if (method == 0) {
@@ -43,11 +51,11 @@ public class Main {
       //printSequenceJ(sequence);
       while (solutionsCounter < neighborhoodSize && triesCounter < 1000000) {
         try {
-          List<Job> clonedSequence = getClonedJobs(sequence);
-          List<Job> newSequence = getNeighborhood(clonedSequence, method);
+          List<Activity> clonedSequence = getClonedActivities(sequence);
+          List<Activity> newSequence = getNeighborhood(clonedSequence, method);
           //printSequenceJ(newSequence);
           Validator validator = new Validator(schedule.getResources(), newSequence);
-          List<SimpleJob> validatedSequence = validator.validate();
+          List<SimpleActivitie> validatedSequence = validator.validate();
           solutionsCounter++;
           triesCounter++;
 //        System.out.println(solutionsCounter);
@@ -70,6 +78,11 @@ public class Main {
     test();
   }
 
+  /**
+   * Se realiza las validaciones de las secuencias no dominadas, este metodo seleccion la secuencia con el mejor Cmax
+   * y con el mejor TWST, posteriormente selecciona las secuencias que se encuentren en el intermedio de estas dos
+   * y asi se obtienen las secuencias no dominadas.
+   */
   private static void test() {
     System.out.println("Encontrar mejores soluciones");
     //allSolutions.forEach(solution -> printSequence(solution.getSequence()));
@@ -106,6 +119,10 @@ public class Main {
       }
     }
 
+    /**
+     * Ingresan las mejores soluciones obtenidas y las muestra en pantalla
+     */
+
     System.out.println("Mejores soluciones: ");
 
     bestSolutions.forEach(solution -> {
@@ -119,44 +136,63 @@ public class Main {
     System.out.printf("");
   }
 
-  private static Solution createSolution(List<SimpleJob> sequence) {
+  /**
+   * Ingresa la secuencia "S" para obtener el TWST y el Cmax.
+   * @param sequence 
+   * @return sequence con el Cmax y el TWST
+   */
+  private static Solution createSolution(List<SimpleActivitie> sequence) {
     int cMax = sequence.get(sequence.size() - 1).getFinishTime();
     int twst = sequence.stream()
         .mapToInt(job -> {
-          return job.getStartTime() * job.getWeight();
+          return job.getStartTime() / job.getWeight();
         })
         .sum();
     return new Solution(sequence, cMax, twst);
   }
 
-  private static List<Job> getClonedJobs(List<Job> sequence) {
-    List<Job> clonedJobs = sequence.stream().map(Job::new).collect(Collectors.toList());
-    clonedJobs.forEach(nj -> {
-      Job oldJob = sequence.stream().filter(oj -> oj.getId() == nj.getId()).findFirst().get();
-      oldJob.getSuccessors().forEach(oldSuccessor -> {
-        Job newSuccessor = clonedJobs.stream().filter(clonedJob -> clonedJob.getId() == oldSuccessor.getId()).findFirst()
+  /**
+   * Ingresa la secuencia "S" para ser duplicada y asi poder realizar los cambios en esta secuencia sin alterar la original
+   * @param sequence
+   * @return sequence duplicada
+   */
+
+  private static List<Activity> getClonedActivities(List<Activity> sequence) {
+    List<Activity> clonedActivities = sequence.stream().map(Activity::new).collect(Collectors.toList());
+    clonedActivities.forEach(nj -> {
+      Activity oldActivity = sequence.stream().filter(oj -> oj.getId() == nj.getId()).findFirst().get();
+      oldActivity.getSuccessors().forEach(oldSuccessor -> {
+        Activity newSuccessor = clonedActivities.stream().filter(clonedJob -> clonedJob.getId() == oldSuccessor.getId()).findFirst()
             .get();
         nj.addSuccessor(newSuccessor);
       });
     });
-    return clonedJobs;
+    return clonedActivities;
   }
 
-  private static List<Job> getNeighborhood(List<Job> sequence, int method) {
-    List<Job> newSequence = new ArrayList<>(sequence);
+  /**
+   * Ingresa la secuencia "S" y el metodo que se obtuvo de manera aleatoria entre metodo de insercion o el metodo de intercambio
+   * @param sequence "S"
+   * @param method insercion o intercambio
+   * @return newSequence
+   */
+
+
+  private static List<Activity> getNeighborhood(List<Activity> sequence, int method) {
+    List<Activity> newSequence = new ArrayList<>(sequence);
     int exchange1;
     int exchange2;
     if (method == 0) {
       exchange1 = random.nextInt(sequence.size());
       exchange2 = random.nextInt(sequence.size());
-      Job job1 = newSequence.get(exchange1);
-      Job job2 = newSequence.get(exchange2);
-      job1.setStartTime(-1);
-      job1.setFinishTime(-1);
-      job2.setStartTime(-1);
-      job2.setFinishTime(-1);
-      newSequence.set(exchange2, job1);
-      newSequence.set(exchange1, job2);
+      Activity activity1 = newSequence.get(exchange1);
+      Activity activity2 = newSequence.get(exchange2);
+      activity1.setStartTime(-1);
+      activity1.setFinishTime(-1);
+      activity2.setStartTime(-1);
+      activity2.setFinishTime(-1);
+      newSequence.set(exchange2, activity1);
+      newSequence.set(exchange1, activity2);
       return newSequence;
     }
 
@@ -164,26 +200,32 @@ public class Main {
 //    int insertIndex = random.nextInt(sequence.size());
     exchange1 = random.nextInt(sequence.size());
     int insertIndex = random.nextInt(sequence.size());
-    Job job1 = newSequence.remove(exchange1);
-    job1.setStartTime(-1);
-    job1.setFinishTime(-1);
-    newSequence.add(insertIndex, job1);
+    Activity activity1 = newSequence.remove(exchange1);
+    activity1.setStartTime(-1);
+    activity1.setFinishTime(-1);
+    newSequence.add(insertIndex, activity1);
     if (newSequence.size() > sequence.size()) {
       System.out.println("error generando nueva secuencia");
     }
     return newSequence;
   }
 
-  private static void printSequence(List<SimpleJob> simpleJobs) {
-    for (SimpleJob job : simpleJobs) {
+
+  /**
+   *
+   * @param simpleActivities
+   */
+
+  private static void printSequence(List<SimpleActivitie> simpleActivities) {
+    for (SimpleActivitie job : simpleActivities) {
       System.out.print(job.getId() + " ");
     }
     System.out.println();
   }
 
-  private static void printSequenceJ(List<Job> newSequence) {
-    for (Job job : newSequence) {
-      System.out.print(job.getId() + " ");
+  private static void printSequenceJ(List<Activity> newSequence) {
+    for (Activity activity : newSequence) {
+      System.out.print(activity.getId() + " ");
     }
     System.out.println();
   }

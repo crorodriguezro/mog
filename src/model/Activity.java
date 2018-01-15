@@ -5,23 +5,26 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Random;
 
-public class Job {
+/**
+ * Esta clase almacena cada actividad con todas sus caracteristicas, id, duracion, tiempo de inicio, tiempo de finalizacion,
+ * recursos, peso, sucesores y predecesores
+ */
+public class Activity {
     private int id;
     private int duration;
     private int startTime;
     private int finishTime;
     private int[] resources;
     private int weight;
-    private List<Job> predecessors = new ArrayList<>();
-    private List<Job> successors = new ArrayList<>();
-    public Job(int id) {
+    private List<Activity> predecessors = new ArrayList<>();
+    private List<Activity> successors = new ArrayList<>();
+    public Activity(int id) {
         this.id = id;
 //        weight = random.nextInt(1000);
     }
-
     private static Random random = new Random();
 
-    public Job(int id, int duration, int startTime, int[] resources) {
+    public Activity(int id, int duration, int startTime, int[] resources) {
         this.id = id;
         this.duration = duration;
         this.startTime = startTime;
@@ -29,13 +32,13 @@ public class Job {
 //        weight = random.nextInt(1000);
     }
 
-    public Job(Job job) {
-        this.id = job.id;
-        this.duration = job.duration;
-        this.startTime = job.startTime;
-        this.finishTime = job.finishTime;
-        this.resources = job.resources;
-        this.weight = job.weight;
+    public Activity(Activity activity) {
+        this.id = activity.id;
+        this.duration = activity.duration;
+        this.startTime = activity.startTime;
+        this.finishTime = activity.finishTime;
+        this.resources = activity.resources;
+        this.weight = activity.weight;
     }
 
     public void start(int t) {
@@ -73,15 +76,15 @@ public class Job {
         this.resources = resources;
     }
 
-    public List<Job> getPredecessors() {
+    public List<Activity> getPredecessors() {
         return predecessors;
     }
 
-    public List<Job> getSuccessors() {
+    public List<Activity> getSuccessors() {
         return successors;
     }
 
-    public void addSuccessor(Job successor) {
+    public void addSuccessor(Activity successor) {
         successors.add(successor);
         successor.predecessors.add(this);
     }
@@ -112,7 +115,7 @@ public class Job {
 
     @Override
     public String toString() {
-        return "Job{" +
+        return "Activity{" +
             "id=" + id +
             ", startTime=" + startTime +
             ", finishTime=" + finishTime +
@@ -127,8 +130,8 @@ public class Job {
         if (o == null || getClass() != o.getClass()) {
             return false;
         }
-        Job job = (Job) o;
-        return id == job.id;
+        Activity activity = (Activity) o;
+        return id == activity.id;
     }
 
     @Override

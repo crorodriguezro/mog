@@ -5,23 +5,23 @@ import java.util.List;
 
 public class Schedule {
 
-    private Job[] jobs;
+    private Activity[] activities;
 
     private Resource[] resources;
 
-    private List<Job> sequence = new ArrayList<>();
+    private List<Activity> sequence = new ArrayList<>();
 
-    public Schedule(Job[] jobs, Resource[] resources) {
-        this.jobs = jobs;
+    public Schedule(Activity[] activities, Resource[] resources) {
+        this.activities = activities;
         this.resources = resources;
     }
 
-    public Job[] getJobs() {
-        return jobs;
+    public Activity[] getActivities() {
+        return activities;
     }
 
-    public void setJobs(Job[] jobs) {
-        this.jobs = jobs;
+    public void setActivities(Activity[] activities) {
+        this.activities = activities;
     }
 
     public Resource[] getResources() {
@@ -32,11 +32,11 @@ public class Schedule {
         this.resources = resources;
     }
 
-    public List<Job> getSequence() {
+    public List<Activity> getSequence() {
         return sequence;
     }
 
-    public void addJobToSequence(Job job) {
-        this.sequence.add(job);
+    public void addJobToSequence(Activity activity) {
+        this.sequence.add(activity);
     }
 }
