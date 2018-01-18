@@ -13,9 +13,9 @@ import java.util.Objects;
 public class Solution {
   private List<Activity> sequence;
   private int cMax;
-  private int twst;
+  private double twst;
 
-  public Solution(List<Activity> sequence, int cMax, int twst) {
+  public Solution(List<Activity> sequence, int cMax, double twst) {
     this.sequence = sequence;
     this.cMax = cMax;
     this.twst = twst;
@@ -29,7 +29,7 @@ public class Solution {
     return cMax;
   }
 
-  public int getTwst() {
+  public double getTwst() {
     return twst;
   }
 

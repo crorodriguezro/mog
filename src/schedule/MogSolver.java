@@ -114,9 +114,9 @@ public class MogSolver {
      */
     private static model.Solution createSolution(List<Activity> sequence) {
         int cMax = sequence.get(sequence.size() - 1).getFinishTime();
-        int twst = sequence.stream()
-                .mapToInt(activity -> {
-                    return activity.getStartTime() / activity.getWeight();
+        double twst = sequence.stream()
+                .mapToDouble(activity -> {
+                    return (double)activity.getStartTime() / activity.getWeight();
                 })
                 .sum();
         return new Solution(sequence, cMax, twst);
@@ -145,8 +145,8 @@ public class MogSolver {
         } else {
             int cMaxMax = bestCMaxSolution.getcMax();
             int cMaxMin = bestTwstSolution.getcMax();
-            int cTwstMin = bestCMaxSolution.getTwst();
-            int cTwstMax = bestTwstSolution.getTwst();
+            double cTwstMin = bestCMaxSolution.getTwst();
+            double cTwstMax = bestTwstSolution.getTwst();
             if (cMaxMax == cMaxMin){
                 bestSolutions.add(bestTwstSolution);
             } else if (cTwstMin == cTwstMax){

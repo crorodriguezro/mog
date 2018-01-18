@@ -21,8 +21,8 @@ import schedule.Sequence;
  */
 public class Main {
 
-  private static final String DEFINITION_FILE = "catalogo/j301_1.sm";
-  private static final String WEIGHT_FILE = "catalogo/j301_1.w";
+  private static final String DEFINITION_FILE = "catalogo/nico.sm";
+  private static final String WEIGHT_FILE = "catalogo/nico.w";
 
   /**
    * Metodo por el cual se obtiene la primera secuencia. "MOG" para Mog y "X" para ...
