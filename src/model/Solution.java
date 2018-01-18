@@ -1,5 +1,7 @@
 package model;
 
+import project.Activity;
+
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
@@ -9,17 +11,17 @@ import java.util.Objects;
  */
 
 public class Solution {
-  private List<SimpleActivitie> sequence;
+  private List<Activity> sequence;
   private int cMax;
   private int twst;
 
-  public Solution(List<SimpleActivitie> sequence, int cMax, int twst) {
+  public Solution(List<Activity> sequence, int cMax, int twst) {
     this.sequence = sequence;
     this.cMax = cMax;
     this.twst = twst;
   }
 
-  public List<SimpleActivitie> getSequence() {
+  public List<Activity> getSequence() {
     return sequence;
   }
 
@@ -64,7 +66,7 @@ public class Solution {
 
   @Override
   public int hashCode() {
-    int[] intSequence = sequence.stream().mapToInt(SimpleActivitie::getId).toArray();
+    int[] intSequence = sequence.stream().mapToInt(Activity::getId).toArray();
     int sequenceHashCode = Arrays.hashCode(intSequence);
     return Objects.hash(sequenceHashCode, cMax, twst);
   }

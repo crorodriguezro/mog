@@ -1,19 +1,18 @@
-package solvers;
+package schedule;
 
 import java.util.Comparator;
 import java.util.List;
 import java.util.Random;
 import java.util.stream.Collectors;
 
-import model.Activity;
+import project.Activity;
 
-public class GreedySolverRandom extends GreedySolver {
+public class MogSequence extends Sequence {
 
   /**
    * Esta clase realiza las acciones para obtener la secuencia "S" por el modelo MOG
    */
-
-  void startNextJobs() {
+  void startNextActivities() {
     Random random = new Random();
     /* Random para escoger la regla de prioridad
         Determine randomly a priority rule;
@@ -26,7 +25,7 @@ public class GreedySolverRandom extends GreedySolver {
         in non-decreasing order of the value of its weight.
      */
     int method = random.nextInt(3);
-    List<Activity> doableActivities = getDoableJobs(availableActivities);
+    List<Activity> doableActivities = getDoableActivities(availableActivities);
     // Si no hay trabajos que se puedan hacer nos salimos del metodo
     if (doableActivities.size() == 0) {
       return;
@@ -36,42 +35,42 @@ public class GreedySolverRandom extends GreedySolver {
     for (int i = 0; i < resourcesNeeded.length; i++) {
       int finalI = i;
       resourcesNeeded[finalI] = doableActivities.stream()
-          .mapToInt(job -> job.getResources()[finalI]).sum();
+          .mapToInt(activity -> activity.getResources()[finalI]).sum();
     }
 
     if(areAvailableResources(resourcesNeeded)){
-      doableActivities.forEach(this::startJob);
+      doableActivities.forEach(this::startActivity);
       return;
     }
 
     // Ordenamos los trabajos segun el metodo
-    List<Activity> sortedActivities = getSortedJobsByMethod(doableActivities, method);
+    List<Activity> sortedActivities = getSortedActivitiesByMethod(doableActivities, method);
 
     List<Activity> shrinkList;
-    // "sorteJobs" es la lista de trabajos ya ordenada
+    // "sorteActivities" es la lista de trabajos ya ordenada
     // "shrinkListMaxIndex" representa el numero de items que vamos a coger la cantidad de trabajos disponibles
     // Sacamos una sublista escogiendo los primeros "shrinkListMaxIndex" items deacuerdo al random de %
     int shrinkListSize = random.nextInt(sortedActivities.size());
     int shrinkListMaxIndex = shrinkListSize == 0 ? 1 : shrinkListSize;
     shrinkList = sortedActivities.subList(0, shrinkListMaxIndex);
     //Buscamos trabajos hasta que ya no queden mas recursos disponibles o mas trabajos
-    int jobTodoIndex;
+    int activityTodoIndex;
     while (shrinkList.size() > 0) {
-      jobTodoIndex = random.nextInt(shrinkList.size());
-      startJob(shrinkList.get(jobTodoIndex));
-      shrinkList.remove(shrinkList.get(jobTodoIndex));
+      activityTodoIndex = random.nextInt(shrinkList.size());
+      startActivity(shrinkList.get(activityTodoIndex));
+      shrinkList.remove(shrinkList.get(activityTodoIndex));
       // Vamos a quitar de la lista "shrinkList" el trabajo iniciado
-      doableActivities = getDoableJobs(shrinkList);
+      doableActivities = getDoableActivities(shrinkList);
 
       // Si ya no hay trabajos que se puedan haccer entoncnes no sasalimos del ciclo
       if(doableActivities.size() == 0){
         break;
       }
-      // "sorteJobs" es la lista de trabajos ya ordenada
+      // "sorteActivities" es la lista de trabajos ya ordenada
       // "shrinkListMaxIndex" representa el numero de items que vamos a coger la cantidad de trabajos disponibles
       // Sacamos una sublista escogiendo los primeros "shrinkListMaxIndex" items deacuerdo al random de %
       method = random.nextInt(3);
-      sortedActivities = getSortedJobsByMethod(doableActivities, method);
+      sortedActivities = getSortedActivitiesByMethod(doableActivities, method);
       shrinkListSize = random.nextInt(sortedActivities.size());
       shrinkListMaxIndex = shrinkListSize == 0 ? 1 : shrinkListSize;
       shrinkList = sortedActivities.subList(0, shrinkListMaxIndex);
@@ -87,20 +86,19 @@ public class GreedySolverRandom extends GreedySolver {
     return true;
   }
 
-  private List<Activity> getSortedJobsByMethod(List<Activity> doableActivities, int method) {
+  private List<Activity> getSortedActivitiesByMethod(List<Activity> doableActivities, int method) {
     Comparator<Activity> comparator;
     switch (method) {
-
       case 0: {
         comparator = Comparator.comparingInt(Activity::getDuration);
         break;
       }
       case 1: {
-        comparator = Comparator.comparingInt(job -> -job.getSuccessors().size());
+        comparator = Comparator.comparingInt(activity -> -activity.getSuccessors().size());
         break;
       }
       case 2: {
-        comparator = Comparator.comparingInt(job -> job.getWeight());
+        comparator = Comparator.comparingInt(activity -> activity.getWeight());
         break;
       }
       default:

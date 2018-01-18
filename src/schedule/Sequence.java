@@ -1,4 +1,4 @@
-package solvers;
+package schedule;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -9,24 +9,19 @@ import java.util.Set;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 
-import model.Activity;
-import model.Resource;
+import project.Activity;
+import project.Resource;
 import model.Schedule;
 
 import java.util.List;
 import java.util.stream.Collectors;
 
-public class GreedySolver implements Solver {
+public abstract class Sequence {
 
-  /**
-   *
-   */
-
-  static int worldTime = 0;
-  List<Activity> jobsInProgresses = new ArrayList<>();
+  private static int worldTime = 0;
+  private List<Activity> activitiesInProgresses = new ArrayList<>();
   Set<Activity> availableActivities = new HashSet<>();
   Resource[] resources;
-
 
   private List<Activity> sequence = new ArrayList<>();
 
@@ -37,49 +32,43 @@ public class GreedySolver implements Solver {
 
     availableActivities.add(currentActivity);
     while (availableActivities.size() > 0) {
-      startNextJobs();
+      startNextActivities();
       pushWorld();
     }
     return sequence;
   }
 
-  List<Activity> getDoableJobs(Collection<Activity> activities) {
+  List<Activity> getDoableActivities(Collection<Activity> activities) {
     return activities.stream()
-            .filter(job -> job.getPredecessors().size() == 0)
+            .filter(activity -> activity.getPredecessors().size() == 0)
             .filter(availableResourcesPredicate)
             .collect(Collectors.toList());
   }
 
-  Predicate<Activity> availableResourcesPredicate = job -> {
-    int[] jobResources = job.getResources();
-    for (int j = 0; j < jobResources.length; j++) {
-      if (jobResources[j] > resources[j].getAmount()) {
+  Predicate<Activity> availableResourcesPredicate = activity -> {
+    int[] activityResources = activity.getResources();
+    for (int j = 0; j < activityResources.length; j++) {
+      if (activityResources[j] > resources[j].getAmount()) {
         return false;
       }
     }
     return true;
   };
 
-  void startNextJobs() {
-    /*List<Activity> doableJobs = getDoableJobs(availableActivities);
-    while (doableJobs.size() > 0){
-      startJob(doableJobs.get(0));
-      doableJobs = getDoableJobs(availableActivities);
-    }*/
-  }
+  abstract void startNextActivities();
 
-  void startJob(Activity activity) {
+  void startActivity(Activity activity) {
     availableActivities.remove(activity);
-    jobsInProgresses.add(activity);
+    activitiesInProgresses.add(activity);
     activity.start(worldTime);
     sequence.add(activity);
 //    System.out.println("Available Resources:");
 //    Arrays.asList(resources).stream().forEach(System.out::println);
     //System.out.println("Started Activity: " + activity);
 //    System.out.println();
-    int[] jobResources = activity.getResources();
-    for (int i = 0; i < jobResources.length; i++) {
-      int resourceAmount = resources[i].getAmount() - jobResources[i];
+    int[] activityResources = activity.getResources();
+    for (int i = 0; i < activityResources.length; i++) {
+      int resourceAmount = resources[i].getAmount() - activityResources[i];
       resources[i].setAmount(resourceAmount);
     }
   }
@@ -91,26 +80,25 @@ public class GreedySolver implements Solver {
     return completedActivity.getSuccessors();
   }
 
-  Consumer<Activity> completeJob = completedJob -> {
-//    System.out.println("Completed Activity: " + completedJob);
-    int[] jobResources = completedJob.getResources();
-    for (int i = 0; i < jobResources.length; i++) {
-      int resourceAmount = resources[i].getAmount() + jobResources[i];
+  Consumer<Activity> completeActivity = completedActivity -> {
+    int[] activityResources = completedActivity.getResources();
+    for (int i = 0; i < activityResources.length; i++) {
+      int resourceAmount = resources[i].getAmount() + activityResources[i];
       resources[i].setAmount(resourceAmount);
     }
-    jobsInProgresses.remove(completedJob);
-    List<Activity> successorActivities = removePredecessor(completedJob);
+    activitiesInProgresses.remove(completedActivity);
+    List<Activity> successorActivities = removePredecessor(completedActivity);
     availableActivities.addAll(successorActivities);
   };
 
   private void pushWorld() {
-    Activity nextActivityToFinish = jobsInProgresses.stream()
+    Activity nextActivityToFinish = activitiesInProgresses.stream()
         .min(Comparator.comparingInt(Activity::getFinishTime))
         .get();
     worldTime = nextActivityToFinish.getFinishTime();
-    List<Activity> finishedActivities = jobsInProgresses.stream()
-        .filter(job -> job.getFinishTime() == worldTime)
+    List<Activity> finishedActivities = activitiesInProgresses.stream()
+        .filter(activity -> activity.getFinishTime() == worldTime)
         .collect(Collectors.toList());
-    finishedActivities.forEach(completeJob);
+    finishedActivities.forEach(completeActivity);
   }
 }

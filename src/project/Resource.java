@@ -1,4 +1,4 @@
-package model;
+package project;
 
 
 /**
@@ -6,6 +6,10 @@ package model;
  */
 public class Resource implements Cloneable
 {
+    public static final String RENEWABLE = "R";
+    public static final String NON_RENEWABLE = "N";
+    public static final String DOUBLY_CONSTRAINED = "D";
+
     private int amount;
     private String resourceType;
 

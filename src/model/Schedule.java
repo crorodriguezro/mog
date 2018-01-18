@@ -1,5 +1,8 @@
 package model;
 
+import project.Activity;
+import project.Resource;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -36,7 +39,7 @@ public class Schedule {
         return sequence;
     }
 
-    public void addJobToSequence(Activity activity) {
+    public void addActivityToSequence(Activity activity) {
         this.sequence.add(activity);
     }
 }

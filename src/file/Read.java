@@ -1,8 +1,7 @@
 package file;
 
-import model.Activity;
-import model.Resource;
-import model.ResourceType;
+import project.Activity;
+import project.Resource;
 import model.Schedule;
 
 import java.io.*;
@@ -38,14 +37,14 @@ public class Read {
             return null;
         }
         String line;
-        int jobsAmount;
+        int activitiesAmount;
         int resourceTypesAmount;
-        Activity[] jobsWithSuccessors;
+        Activity[] activitiesWithSuccessors;
         Activity[] activities;
         try {
             line = mainFileReader.readLine();
             // Leemos numero total de tareas
-            jobsAmount = readNumber(mainFileReader, line, "activities");
+            activitiesAmount = readNumber(mainFileReader, line, "activities");
             // Nos saltamos hasta RESOURCES
             skipTo(mainFileReader, line, "RESOURCES");
             // Leemos los recursos
@@ -53,13 +52,13 @@ public class Read {
             // Nos saltamos hasta jobnr
             skipTo(mainFileReader, line, "jobnr.");
             // Leemos los trabajos
-            jobsWithSuccessors = readJobWithSuccessors(mainFileReader, jobsAmount);
+            activitiesWithSuccessors = readActivityWithSuccessors(mainFileReader, activitiesAmount);
             //Leemos Time And Resources
             skipTo(mainFileReader,line,"----");
-            activities = readTimeAndResources(mainFileReader, jobsAmount, jobsWithSuccessors);
+            activities = readTimeAndResources(mainFileReader, activitiesAmount, activitiesWithSuccessors);
             skipTo(mainFileReader,line,"RESOURCEAVAILABILITIES");
 
-            activities = readWeights(weightFileReader, jobsAmount, activities);
+            activities = readWeights(weightFileReader, activitiesAmount, activities);
 
             Resource[] resources = readTotalResources(mainFileReader);
             // Creamos el Scheduler con los trabajos y las tareas
@@ -131,7 +130,7 @@ public class Read {
         String[] parts = line.split("\\s+");
         Resource[] resources = new Resource[parts.length - 1];
         for (int i = 1; i < parts.length; i++) {
-            resources[i-1] = new Resource(Integer.parseInt(parts[i]), ResourceType.RENEWABLE);
+            resources[i-1] = new Resource(Integer.parseInt(parts[i]), Resource.RENEWABLE);
         }
         return resources;
     }
@@ -144,7 +143,7 @@ public class Read {
      * @return arreglo de actividades
      * @throws IOException when file is in the wrong format
      */
-    private Activity[] readJobWithSuccessors(BufferedReader reader, int numTasks) throws IOException {
+    private Activity[] readActivityWithSuccessors(BufferedReader reader, int numTasks) throws IOException {
         Activity[] activities = new Activity[numTasks];
         String line;
         String[] parts;
@@ -179,13 +178,13 @@ public class Read {
         return activities;
     }
 
-    private Activity[] readTimeAndResources(BufferedReader reader, int jobsAmount, Activity[] activities) throws IOException {
+    private Activity[] readTimeAndResources(BufferedReader reader, int activitiesAmount, Activity[] activities) throws IOException {
         String line;
         String[] parts;
         int duration;
         int[] resources;
 
-        for (int i = 0; i < jobsAmount; ++i) {
+        for (int i = 0; i < activitiesAmount; ++i) {
             line = reader.readLine();
             parts = line.split("\\s+");
             duration = Integer.parseInt(parts[3]);
