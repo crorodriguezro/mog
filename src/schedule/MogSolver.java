@@ -49,7 +49,6 @@ public class MogSolver {
             }
             //System.out.println("intentos: " + triesCounter);
         }
-        test();
     }
 
     /**
@@ -128,7 +127,7 @@ public class MogSolver {
      * y con el mejor TWST, posteriormente selecciona las secuencias que se encuentren en el intermedio de estas dos
      * y asi se obtienen las secuencias no dominadas.
      */
-    private static void test() {
+    public static void test() {
         System.out.println("Encontrar mejores soluciones");
         //allSolutions.forEach(solution -> printSequence(solution.getSequence()));
         Solution bestOverallSolution = new Solution(null, Integer.MAX_VALUE, Integer.MAX_VALUE);

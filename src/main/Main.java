@@ -64,5 +64,6 @@ public class Main {
           throw new RuntimeException("Metodo no conocido");
       }
     }
+    MogSolver.test();
   }
 }
