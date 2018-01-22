@@ -1,11 +1,12 @@
 package schedule;
 
-import java.util.Comparator;
-import java.util.List;
-import java.util.Random;
+import java.util.*;
 import java.util.stream.Collectors;
 
+import model.Schedule;
+import model.Solution;
 import project.Activity;
+import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 public class MogSequence extends Sequence {
 
@@ -84,6 +85,12 @@ public class MogSequence extends Sequence {
       }
     }
     return true;
+  }
+
+  @Override
+  public List<Solution> getSolutions(Schedule schedule) {
+    Solution solution = new Solution(generateSequence(schedule), -1, -1);
+    return  Collections.singletonList(solution);
   }
 
   private List<Activity> getSortedActivitiesByMethod(List<Activity> doableActivities, int method) {

@@ -2,6 +2,7 @@ package model;
 
 import project.Activity;
 
+import java.math.BigDecimal;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
@@ -14,6 +15,9 @@ public class Solution {
   private List<Activity> sequence;
   private int cMax;
   private double twst;
+  private List<Solution> dominatedBy;
+  private double dominatedByDistance[];
+  private BigDecimal fitness;
 
   public Solution(List<Activity> sequence, int cMax, double twst) {
     this.sequence = sequence;
@@ -69,5 +73,29 @@ public class Solution {
     int[] intSequence = sequence.stream().mapToInt(Activity::getId).toArray();
     int sequenceHashCode = Arrays.hashCode(intSequence);
     return Objects.hash(sequenceHashCode, cMax, twst);
+  }
+
+  public List<Solution> getDominatedBy() {
+    return dominatedBy;
+  }
+
+  public void setDominatedBy(List<Solution> dominatedBy) {
+    this.dominatedBy = dominatedBy;
+  }
+
+  public double[] getDominatedByDistance() {
+    return dominatedByDistance;
+  }
+
+  public void setDominatedByDistance(double[] dominatedByDistance) {
+    this.dominatedByDistance = dominatedByDistance;
+  }
+
+  public BigDecimal getFitness() {
+    return fitness;
+  }
+
+  public void setFitness(BigDecimal fitness) {
+    this.fitness = fitness;
   }
 }

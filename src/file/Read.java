@@ -188,7 +188,12 @@ public class Read {
             line = reader.readLine();
             parts = line.split("\\s+");
             duration = Integer.parseInt(parts[3]);
-            resources = readResources (parts);
+
+            if(i > 98 ){
+                resources = readResources (parts, 3);
+            } else {
+                resources = readResources (parts, 4);
+            }
             activities[i].setDuration(duration);
             activities[i].setResources(resources);
         }
@@ -210,11 +215,11 @@ public class Read {
         return successors;
     }
 
-    private int[] readResources(String[] parts) {
-        int[] resources = new int[parts.length - 4];
+    private int[] readResources(String[] parts, int partsOffset) {
+        int[] resources = new int[parts.length - partsOffset];
         for (int i = 0; i < resources.length; ++i)
         {
-            resources[i] = Integer.parseInt(parts[i + 4]);
+            resources[i] = Integer.parseInt(parts[i + partsOffset]);
         }
 
         return resources;

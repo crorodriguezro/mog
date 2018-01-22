@@ -130,9 +130,8 @@ public class MogSolver {
     public static void test() {
         System.out.println("Encontrar mejores soluciones");
         //allSolutions.forEach(solution -> printSequence(solution.getSequence()));
-        Solution bestOverallSolution = new Solution(null, Integer.MAX_VALUE, Integer.MAX_VALUE);
-        Solution bestCMaxSolution = new Solution(null, Integer.MAX_VALUE, Integer.MAX_VALUE);
-        Solution bestTwstSolution = new Solution(null, Integer.MAX_VALUE, Integer.MAX_VALUE);
+        Solution bestCMaxSolution = allSolutions.stream().findAny().get();
+        Solution bestTwstSolution = allSolutions.stream().findAny().get();
         for (Solution currentSolution : allSolutions) {
             if (currentSolution.getcMax() < bestCMaxSolution.getcMax()){
                 bestCMaxSolution = currentSolution;
@@ -169,14 +168,15 @@ public class MogSolver {
 
         System.out.println("Mejores soluciones: ");
 
+//        allSolutions.forEach(solution -> {
+//            System.out.println(solution.getcMax() + "\t" + solution.getTwst());
+//        });
+
         bestSolutions.forEach(solution -> {
             System.out.println(solution.toString());
             printSequence(solution.getSequence());
         });
 
-//    allSolutions.forEach(solution -> {
-//      System.out.println(solution.getcMax() + "\t" + solution.getTwst());
-//    });
         System.out.printf("");
     }
 

@@ -9,6 +9,7 @@ import java.util.Set;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 
+import model.Solution;
 import project.Activity;
 import project.Resource;
 import model.Schedule;
@@ -18,14 +19,24 @@ import java.util.stream.Collectors;
 
 public abstract class Sequence {
 
-  private static int worldTime = 0;
-  private List<Activity> activitiesInProgresses = new ArrayList<>();
-  Set<Activity> availableActivities = new HashSet<>();
+  private static int worldTime;
+  private List<Activity> activitiesInProgresses;
+  Set<Activity> availableActivities;
   Resource[] resources;
 
-  private List<Activity> sequence = new ArrayList<>();
+  private List<Activity> sequence;
 
   public List<Activity> solve(Schedule schedule) {
+    return generateSequence(schedule);
+  }
+
+  abstract List<Solution> getSolutions(Schedule schedule);
+
+  public List<Activity> generateSequence(Schedule schedule) {
+    worldTime = 0;
+    sequence = new ArrayList<>();
+    activitiesInProgresses = new ArrayList<>();
+    availableActivities = new HashSet<>();
     List<Activity> activities = Arrays.asList(schedule.getActivities());
     resources = schedule.getResources();
     Activity currentActivity = activities.get(0);
@@ -100,5 +111,20 @@ public abstract class Sequence {
         .filter(activity -> activity.getFinishTime() == worldTime)
         .collect(Collectors.toList());
     finishedActivities.forEach(completeActivity);
+  }
+
+  /**
+   * Ingresa la secuencia "S" para obtener el TWST y el Cmax.
+   * @param sequence
+   * @return sequence con el Cmax y el TWST
+   */
+  public static Solution createSolution(List<Activity> sequence) {
+    int cMax = sequence.get(sequence.size() - 1).getFinishTime();
+    double twst = sequence.stream()
+            .mapToDouble(activity -> {
+              return (double)activity.getStartTime() / activity.getWeight();
+            })
+            .sum();
+    return new Solution(sequence, cMax, twst);
   }
 }
