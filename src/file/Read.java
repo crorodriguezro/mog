@@ -22,7 +22,7 @@ public class Read {
      * @return No se retorna nada
      */
     public Schedule processFile(String fileName, String weightFile) {
-        // Represents the read info
+        // Representa la informacion de lectura
         Schedule schedule;
 
         // Ayuda a almacenar las lineas leidas
@@ -43,7 +43,7 @@ public class Read {
         Activity[] activities;
         try {
             line = mainFileReader.readLine();
-            // Leemos numero total de tareas
+            // Leemos numero total de actividades
             activitiesAmount = readNumber(mainFileReader, line, "activities");
             // Nos saltamos hasta RESOURCES
             skipTo(mainFileReader, line, "RESOURCES");
@@ -51,7 +51,7 @@ public class Read {
             resourceTypesAmount = readResourceTypesAmount(mainFileReader);
             // Nos saltamos hasta jobnr
             skipTo(mainFileReader, line, "jobnr.");
-            // Leemos los trabajos
+            // Leemos las actividades
             activitiesWithSuccessors = readActivityWithSuccessors(mainFileReader, activitiesAmount);
             //Leemos Time And Resources
             skipTo(mainFileReader,line,"----");
@@ -75,11 +75,11 @@ public class Read {
 
     /**
      * Se toma la informacion de los pesos anteriormente leida y se asosia a cada actividad
-     * @param weightFileReader
-     * @param activitiesAmount
-     * @param activities
-     * @return
-     * @throws IOException
+     * @param weightFileReader Los pesos de las actividades
+     * @param activitiesAmount La cantidad de actividades
+     * @param activities Las actividades
+     * @return Almacena la informacion
+     * @throws IOException Cuando el archivo esta en un formato diferente
      */
     private Activity[] readWeights(BufferedReader weightFileReader, int activitiesAmount, Activity[] activities)
         throws IOException {
@@ -95,11 +95,11 @@ public class Read {
     /**
      * Lee el numero de actividades y recursos.
      *
-     * @param reader
+     * @param reader Lector de archivo
      * @param line   linea actual del archivo
      * @param toRead determina que lee, actividades o recursos
      * @return el numero de actividades o de recursos
-     * @throws IOException when there is no <code>toRead in the file</code>
+     * @throws IOException Cuando el archivo est en formato diferente
      */
     private int readNumber(BufferedReader reader, String line, String toRead) throws IOException {
         line = skipTo(reader, line, toRead);
@@ -111,6 +111,13 @@ public class Read {
         return Integer.parseInt(line.substring(lastCharacterIndex + 1));
     }
 
+    /**
+     * Lee el tipo de recursos.
+     *
+     * @param reader Lector de archivo
+     * @return El tipo de recursos que contiene el achivo.
+     * @throws IOException Cuando el archivo esta en un formato diferente
+     */
     private int readResourceTypesAmount(BufferedReader reader) throws IOException {
         String line;
         String[] parts;
@@ -124,6 +131,13 @@ public class Read {
         return resourceAmount;
     }
 
+    /**
+     * Lee el total de recursos
+     *
+     * @param reader Lector de archivo
+     * @return El total de recursos.
+     * @throws IOException Cuando el archivo esta en un formato diferente
+     */
     private Resource[] readTotalResources(BufferedReader reader) throws IOException {
         reader.readLine();
         String line = reader.readLine();
@@ -136,12 +150,12 @@ public class Read {
     }
 
     /**
-     * Lee las actividades del archivo plano.
+     * Lee las actividades y recursos.
      *
-     * @param reader   used reader
+     * @param reader   Lector de archivo
      * @param numTasks numero de actividades
      * @return arreglo de actividades
-     * @throws IOException when file is in the wrong format
+     * @throws IOException Cuando el archivo esta en un formato diferente
      */
     private Activity[] readActivityWithSuccessors(BufferedReader reader, int numTasks) throws IOException {
         Activity[] activities = new Activity[numTasks];
@@ -178,6 +192,15 @@ public class Read {
         return activities;
     }
 
+    /**
+     * Lee el tiempo de cada actividad
+     *
+     * @param reader Lector de archivo
+     * @param activitiesAmount Cantidad de actividades
+     * @param activities Actividades
+     * @return
+     * @throws IOException Cuando el archivo esta en un formato diferente
+     */
     private Activity[] readTimeAndResources(BufferedReader reader, int activitiesAmount, Activity[] activities) throws IOException {
         String line;
         String[] parts;
@@ -201,9 +224,9 @@ public class Read {
     }
 
     /**
-     * Crea un arreglo con los sucesores de cada actividad.
+     * Lee los sucesores de cada actividad
      *
-     * @param parts        linea del formato que contiene los sucesores
+     * @param parts linea del formato que contiene los sucesores
      * @return arreglo de los sucesores
      */
     private int[] readSuccessors(String[] parts) {
@@ -225,9 +248,9 @@ public class Read {
         return resources;
     }
     /**
-     * Salta el lector hasta la linea que comiensa con el texto descrito
+     * Salta el lector hasta la linea que inicia con el texto descrito
      *
-     * @param reader  used reader
+     * @param reader  Lector de archivo
      * @param line    linea actual del archivo
      * @param desired texto deseado de encontrar en la linea
      * @return linea, esta inicia con <code>desired</code> String
@@ -241,10 +264,9 @@ public class Read {
     }
 
     /**
-     * Closes the reader. Should be used in <code>finally</code>
-     * part of reading the file.
+     * Cierra el lector
      *
-     * @param reader closed reader
+     * @param reader Terminador de lectura
      */
     protected void closeReader(BufferedReader reader) {
         try {
