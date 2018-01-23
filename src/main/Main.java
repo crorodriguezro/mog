@@ -26,17 +26,13 @@ public class Main {
    */
   private static final String WEIGHT_FILE = "catalogo/j1201_1.w";
   /**
-   * Metodo por el cual se obtiene la primera secuencia "S". "MOG_SEQUENCE" para Mog y "SPEA2_SEQUENCE" para ...
+   * Metodo por el cual se obtiene la primera secuencia "S". "MOG" para Mog y "SPEA2" para ...
    */
-  private static final String METHOD_S = "SPEA2_SEQUENCE";
-  /**
-   * Metodo por el cual se obtienen las secuencias "S*"
-   */
-    private static final String METHOD_SX = "MOG_SOLVER";;
+  private static final String METHOD_S = "MOG";
   /**
    * Numero de veces que se va a ejecutar el programa (numero de "S")
    */
-  private static int PROGRAM_EXECUTION_TIMES = 1;
+  private static int PROGRAM_EXECUTION_TIMES = 3;
   /**
    * Criterio de detencion cuando no se encuentren nuevas soluciones
    */
