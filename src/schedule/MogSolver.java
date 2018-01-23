@@ -128,55 +128,27 @@ public class MogSolver {
      * y asi se obtienen las secuencias no dominadas.
      */
     public static void test() {
-        System.out.println("Encontrar mejores soluciones");
-        //allSolutions.forEach(solution -> printSequence(solution.getSequence()));
-        Solution bestCMaxSolution = allSolutions.stream().findAny().get();
-        Solution bestTwstSolution = allSolutions.stream().findAny().get();
-        for (Solution currentSolution : allSolutions) {
-            if (currentSolution.getcMax() < bestCMaxSolution.getcMax()){
-                bestCMaxSolution = currentSolution;
-            } else if (currentSolution.getTwst() < bestTwstSolution.getTwst()){
-                bestTwstSolution = currentSolution;
-            }
-        }
-        if (bestCMaxSolution == bestTwstSolution) {
-            bestSolutions.add(bestCMaxSolution);
-        } else {
-            int cMaxMax = bestCMaxSolution.getcMax();
-            int cMaxMin = bestTwstSolution.getcMax();
-            double cTwstMin = bestCMaxSolution.getTwst();
-            double cTwstMax = bestTwstSolution.getTwst();
-            if (cMaxMax == cMaxMin){
-                bestSolutions.add(bestTwstSolution);
-            } else if (cTwstMin == cTwstMax){
-                bestSolutions.add(bestCMaxSolution);
-            } else {
-                bestSolutions.add(bestCMaxSolution);
-                bestSolutions.add(bestTwstSolution);
-                for (Solution currentSolution : allSolutions) {
-                    if(currentSolution.getcMax() >= cMaxMin && currentSolution.getcMax() <= cMaxMax &&
-                            currentSolution.getTwst() >= cTwstMin && currentSolution.getTwst() <= cTwstMax){
-                        bestSolutions.add(currentSolution);
-                    }
-                }
-            }
-        }
+        List<Solution> bestSolutions;
+        List<Solution> listWithoutDuplicates = allSolutions.stream()
+                .distinct()
+                .collect(Collectors.toList());
 
-        /**
-         * Ingresan las mejores soluciones obtenidas y las muestra en pantalla
-         */
+        bestSolutions = listWithoutDuplicates.stream().filter(candidateSolution -> {
+            boolean nonDominant = listWithoutDuplicates.stream()
+                    .filter(solution -> !solution.equals(candidateSolution))
+                    .anyMatch(solution -> {
+                        boolean bestOrEqualCmax = solution.getcMax() <= candidateSolution.getcMax();
+                        boolean bestOrEqualTwst = solution.getTwst() <= candidateSolution.getTwst();
+                        return bestOrEqualCmax && bestOrEqualTwst;
+                    });
+            return !nonDominant;
+        }).collect(Collectors.toList());
 
         System.out.println("Mejores soluciones: ");
-
-//        allSolutions.forEach(solution -> {
-//            System.out.println(solution.getcMax() + "\t" + solution.getTwst());
-//        });
-
         bestSolutions.forEach(solution -> {
             System.out.println(solution.toString());
             printSequence(solution.getSequence());
         });
-
         System.out.printf("");
     }
 

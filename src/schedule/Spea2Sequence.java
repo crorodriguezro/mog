@@ -5,13 +5,12 @@ import model.Schedule;
 import model.Solution;
 import project.Activity;
 
-import javax.management.AttributeList;
 import java.math.BigDecimal;
 import java.util.*;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 public class Spea2Sequence extends Sequence {
+  private static Cloner cloner = new Cloner();
 
   private static final Map<Integer, Integer> cambiarNombre;
   static
@@ -57,9 +56,7 @@ public class Spea2Sequence extends Sequence {
     List<Solution> nonDominatedSolutions = getNonDominated(solutions);
 
     double k = Math.pow(solutions.size() + nonDominatedSolutions.size(), 0.5);
-    for (int i = 0; i < solutions.size(); i++) {
-      Solution solution = solutions.get(i);
-
+    for (Solution solution : solutions) {
       List<Solution> dominatedBy = nonDominatedSolutions.stream()
               .filter(nonDominatedSolition -> !nonDominatedSolition.equals(solution))
               .filter(nonDominatedSolution -> solution.getcMax() >= nonDominatedSolution.getcMax() && solution.getTwst() >= nonDominatedSolution.getTwst())
@@ -76,7 +73,7 @@ public class Spea2Sequence extends Sequence {
       solution.setDominatedBy(dominatedBy);
       BigDecimal density = new BigDecimal(1 / (Math.pow(getBiggestDistance(distances), k) + 2));
       BigDecimal fitness = density.add(new BigDecimal(dominatedBy.size()));
-      if(fitness.compareTo(new BigDecimal(0.5))== 0){
+      if (fitness.compareTo(new BigDecimal(0.5)) == 0) {
         System.out.println();
       }
       solution.setFitness(fitness);
@@ -85,7 +82,43 @@ public class Spea2Sequence extends Sequence {
 //            System.out.println(solution.getcMax() + "\t" + solution.getTwst());
 //        });
     solutions.sort(Comparator.comparing(Solution::getFitness));
+
     return solutions;
+  }
+
+  public List<Solution> getSolutions2(Schedule schedule, List<Solution> solutions) {
+    Cloner cloner = new Cloner();
+    List<Solution> clonedSolutions = cloneSolution(solutions);
+    List<Solution> nonDominatedSolutions = getNonDominated(clonedSolutions);
+    double k = Math.pow(clonedSolutions.size() + nonDominatedSolutions.size(), 0.5);
+    for (Solution solution : clonedSolutions) {
+      List<Solution> dominatedBy = nonDominatedSolutions.stream()
+              .filter(nonDominatedSolition -> !nonDominatedSolition.equals(solution))
+              .filter(nonDominatedSolution -> solution.getcMax() >= nonDominatedSolution.getcMax() && solution.getTwst() >= nonDominatedSolution.getTwst())
+              .collect(Collectors.toList());
+
+      double distances[] = new double[dominatedBy.size()];
+      for (int j = 0; j < dominatedBy.size(); j++) {
+        Solution nonDominatedSolution = dominatedBy.get(j);
+        double cMaxSquare = Math.pow(nonDominatedSolution.getcMax() - solution.getcMax(), 2);
+        double twstSquare = Math.pow(nonDominatedSolution.getTwst() - solution.getTwst(), 2);
+        distances[j] = Math.pow(cMaxSquare + twstSquare, 0.5);
+        solution.setDominatedByDistance(distances);
+      }
+      solution.setDominatedBy(dominatedBy);
+      BigDecimal density = new BigDecimal(1 / (Math.pow(getBiggestDistance(distances), k) + 2));
+      BigDecimal fitness = density.add(new BigDecimal(dominatedBy.size()));
+      if (fitness.compareTo(new BigDecimal(0.5)) == 0) {
+        System.out.println();
+      }
+      solution.setFitness(fitness);
+    }
+//    solutions.forEach(solution -> {
+//            System.out.println(solution.getcMax() + "\t" + solution.getTwst());
+//        });
+    clonedSolutions.sort(Comparator.comparing(Solution::getFitness));
+
+    return clonedSolutions;
   }
 
   double getBiggestDistance(double distances[]) {
@@ -156,11 +189,6 @@ public class Spea2Sequence extends Sequence {
     return lower <= x && x <= upper;
   }
 
-  /**
-   * Se realiza las validaciones de las secuencias no dominadas, este metodo seleccion la secuencia con el mejor Cmax
-   * y con el mejor TWST, posteriormente selecciona las secuencias que se encuentren en el intermedio de estas dos
-   * y asi se obtienen las secuencias no dominadas.
-   */
   private static List<Solution> getNonDominated(List<Solution> allSolutions) {
     List<Solution> bestSolutions;
     List<Solution> listWithoutDuplicates = allSolutions.stream()
@@ -173,7 +201,7 @@ public class Spea2Sequence extends Sequence {
               .anyMatch(solution -> {
                 boolean bestOrEqualCmax = solution.getcMax() <= candidateSolution.getcMax();
                 boolean bestOrEqualTwst = solution.getTwst() <= candidateSolution.getTwst();
-                return (bestOrEqualCmax && bestOrEqualTwst);
+                return bestOrEqualCmax && bestOrEqualTwst;
               });
       return !nonDominant;
     }).collect(Collectors.toList());
@@ -182,5 +210,13 @@ public class Spea2Sequence extends Sequence {
       System.out.println(solution.getcMax() + "\t" + solution.getTwst());
     });
     return bestSolutions;
+  }
+
+  private static List<Solution> cloneSolution(List<Solution> solutions) {
+    List<Solution> clonedSolutions = new ArrayList<>();
+    for (Solution solution : solutions) {
+      clonedSolutions.add(cloner.deepClone(solution));
+    }
+    return clonedSolutions;
   }
 }
