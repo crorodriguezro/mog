@@ -15,20 +15,36 @@ import schedule.*;
  * El metodo por el que se van a generar las "S".
  * EL metodo por el que van a ser generados los "S*"
  * El criterio de detencion del programa.
- * El nombre del archivo de salida.
- */
+  */
 public class Main {
-
-    private static final String DEFINITION_FILE = "catalogo/j1201_1.sm";
-    private static final String WEIGHT_FILE = "catalogo/j1201_1.w";
-
+  /**
+   * Archivo fuente con la informacion de las actividades
+   */
+  private static final String DEFINITION_FILE = "catalogo/j1201_1.sm";
+  /**
+   * Archivo fuente con los pesos de cada actividad
+   */
+  private static final String WEIGHT_FILE = "catalogo/j1201_1.w";
+  /**
+   * Metodo por el cual se obtiene la primera secuencia "S". "MOG_SEQUENCE" para Mog y "SPEA2_SEQUENCE" para ...
+   */
+  private static final String METHOD_S = "SPEA2_SEQUENCE";
+  /**
+   * Metodo por el cual se obtienen las secuencias "S*"
+   */
+    private static final String METHOD_SX = "MOG_SOLVER";;
+  /**
+   * Numero de veces que se va a ejecutar el programa (numero de "S")
+   */
+  private static int PROGRAM_EXECUTION_TIMES = 1;
+  /**
+   * Criterio de detencion cuando no se encuentren nuevas soluciones
+   */
+  private static int MAX_SEQUENCE_X_TRIES = 10000;
     /**
-     * Metodo por el cual se obtiene la primera secuencia. "MOG" para Mog y "SPEA2" para ...
+     * La cantidad de ejecuciones que va a tener el programa
+     * @param args Ejecuciones segun el numero suministrado
      */
-    private static final String METHOD_S = "MOG";
-    private static int PROGRAM_EXECUTION_TIMES = 3;
-    private static int MAX_SEQUENCE_X_TRIES = 10000;
-
     public static void main(String[] args) {
         Read reader = new Read();
         // Procesa el archivo
