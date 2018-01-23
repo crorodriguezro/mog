@@ -18,14 +18,17 @@ import project.Resource;
  */
 
 public class Validator {
-
   private List<Activity> Activities;
-
   private List<Resource> resources;
   private List<Activity> sequence;
   private List<Activity> activitiesInProgresses;
   private int worldTime;
 
+  /**
+   * Contructor validador
+   * @param resources Recursos
+   * @param sequence Secuencia a validar
+   */
   public Validator(Resource[] resources, List<Activity> sequence) {
     this.resources = Arrays.stream(resources)
         .map(Resource::new)
@@ -35,6 +38,11 @@ public class Validator {
     this.worldTime = 0;
   }
 
+  /**
+   *Metodo para validar las secuencias generadas
+   * @return Es valida o no la nueva secuencia basado en las restricciones de
+   * precedencia, los recursos y los tiempos de inicio.
+   */
   public List<Activity> validate() {
 //    System.out.println("Inicio");
     Activities = new ArrayList<>();
@@ -105,12 +113,23 @@ public class Validator {
     return Activities;
   }
 
+  /**
+   * Metodo que obtiene las actividades que se pueden realizar de acuerdo al predecesor
+   * @param activities Actividades
+   * @return Listado de actividades validas
+   */
   List<Activity> getDoableActivitiesByPredecessors(Collection<Activity> activities) {
     return activities.stream()
         .filter(activity -> activity.getPredecessors().size() == 0)
         .collect(Collectors.toList());
   }
 
+  /**
+   *Metodo que obtiene las actividades que se pueden realizar de acuerdo al predecesor
+   * y a los recursos
+   * @param activities Actividades
+   * @return Listado de actividades validas
+   */
   List<Activity> getDoableActivitiesByPredecessorsAndResources(Collection<Activity> activities) {
     return activities.stream()
         .filter(activity -> activity.getPredecessors().size() == 0)
@@ -118,6 +137,9 @@ public class Validator {
         .collect(Collectors.toList());
   }
 
+  /**
+   *Validador de la cantidad de recursos disponibles para las actividades
+   */
   Predicate<Activity> availableResourcesPredicate = activity -> {
     int[] activityResources = activity.getResources();
     for (int j = 0; j < activityResources.length; j++) {
@@ -128,6 +150,10 @@ public class Validator {
     return true;
   };
 
+  /**
+   * Validador de los predecesores de las actividades
+   * @param activity Actividades con sus predecesores
+   */
   void startActivity(Activity activity) {
 //    System.out.println("StartingActivity: " + activity.getId());
     activity.start(worldTime);
@@ -136,6 +162,9 @@ public class Validator {
     if (activity.getPredecessors().size() > 0) {
       throw new RuntimeException("El trabajo tiene predecesores");
     }
+    /**
+     * Validador de recursos disponibles para una actividad
+     */
     int[] activityResources = activity.getResources();
     for (int i = 0; i < activityResources.length; i++) {
       int resourceAmount = resources.get(i).getAmount() - activityResources[i];
@@ -146,6 +175,11 @@ public class Validator {
     }
   }
 
+  /**
+   *Metodo remover predecesores para las actividades asigandas
+   * @param completedActivity Actividades finalizadas
+   * @return Las actividades finalizadas sin predecesores
+   */
   static List<Activity> removePredecessor(Activity completedActivity) {
     for (Activity successor : completedActivity.getSuccessors()) {
       successor.removePredecessor(completedActivity.getId());
@@ -153,6 +187,9 @@ public class Validator {
     return completedActivity.getSuccessors();
   }
 
+  /**
+   *Validador de actividades en progreso
+   */
   private void pushWorld() {
     Optional<Activity> nextFinishingActivity = activitiesInProgresses.stream()
         .filter(activity -> activity.getFinishTime() != -1)
@@ -172,6 +209,10 @@ public class Validator {
     }
   }
 
+  /**
+   *Metodo para actividad finalizada
+   * @param activity Actividad finalizada, tiempo final y recursos finales
+   */
   private void finishActivity(Activity activity) {
     int[] activityResources = activity.getResources();
     for (int i = 0; i < activityResources.length; i++) {
