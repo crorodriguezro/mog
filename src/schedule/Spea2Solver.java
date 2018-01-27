@@ -15,6 +15,13 @@ public class Spea2Solver {
     private static Set<Solution> bestSolutions;
     private static Cloner cloner = new Cloner();
 
+    /**
+     * Metodo para generar las secuencias mutadas y recombinadas (hijos)
+     * @param schedule Secuencia
+     * @param solutions Mejores secuencias obtenidas
+     * @param maxSequenceTries Numero maximo de intentos
+     * @return Todas las nuevas soluciones
+     */
     public static List<Solution> getSequencesSx(Schedule schedule, List<Solution> solutions, int maxSequenceTries) {
         List<Solution> clonedSolutions = cloneSolution(solutions);
         allSolutions = new HashSet<>();
@@ -48,6 +55,11 @@ public class Spea2Solver {
         return new ArrayList<>(allSolutions);
     }
 
+    /**
+     * Metodo que duplica la solucion tomada para no perderla en la mutacion o recombinacion
+     * @param solutions Secuencia para mutar
+     * @return Secuencia duplicada
+     */
     private static List<Solution> cloneSolution(List<Solution> solutions) {
         List<Solution> clonedSolutions = new ArrayList<>();
         for (Solution solution : solutions) {
@@ -56,6 +68,11 @@ public class Spea2Solver {
         return clonedSolutions;
     }
 
+    /**
+     * Metodo para obtener un vecindario de secuencias mutadas
+     * @param solutions Todas las mejores soluciones
+     * @return Secuencias mutadas
+     */
     private static List<Solution> getMutationNeighborhood(List<Solution> solutions) {
         List<Solution> mutatedSolutions = new ArrayList<>();
         for (Solution solution : solutions) {
@@ -79,6 +96,11 @@ public class Spea2Solver {
         return mutatedSolutions;
     }
 
+    /**
+     * Metodo para obtener un vecindario de secuencias recombinadas
+     * @param solutions Todas las mejores soluciones
+     * @return Secuencias recombinadas
+     */
     private static List<Solution> getRecombinationNeighborhood(List<Solution> solutions) {
         List<Solution> mutatedSolutions = new ArrayList<>();
         for (Solution solution : solutions) {
@@ -87,8 +109,9 @@ public class Spea2Solver {
             Solution otherSolution = solutions.get(recombinationIndex);
             List<Activity> otherSequence = cloner.deepClone(otherSolution.getSequence());
             int sublistIndex;
+            // se recombinan apartir del 4 nodo
             sublistIndex = 4;
-/*            do {
+            /*            do {
                 sublistIndex = random.nextInt(sequence.size()) + 1;
             } while (sublistIndex != 0 && sublistIndex != sequence.size() -1);*/
             List<Activity> subSequence1 = sequence.subList(0, sublistIndex);
@@ -104,7 +127,7 @@ public class Spea2Solver {
 
     /**
      * Ingresa la secuencia "S" para obtener el TWST y el Cmax.
-     * @param sequence
+     * @param sequence Nueva secuencia
      * @return sequence con el Cmax y el TWST
      */
     private static Solution createSolution(List<Activity> sequence) {
@@ -118,8 +141,8 @@ public class Spea2Solver {
     }
 
     /**
-     *
-     * @param Activities
+     *Metodo para imprimir la secuencia final
+     * @param Activities Actividades
      */
 
     private static void printSequence(List<Activity> Activities) {

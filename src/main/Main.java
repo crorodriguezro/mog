@@ -32,7 +32,7 @@ public class Main {
   /**
    * Numero de veces que se va a ejecutar el programa (numero de "S")
    */
-  private static int PROGRAM_EXECUTION_TIMES = 3;
+  private static int PROGRAM_EXECUTION_TIMES = 2;
   /**
    * Criterio de detencion cuando no se encuentren nuevas soluciones
    */

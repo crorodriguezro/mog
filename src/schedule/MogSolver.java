@@ -13,6 +13,12 @@ public class MogSolver {
     private static Set<Solution> allSolutions = new HashSet<>();
     private static Set<Solution> bestSolutions = new HashSet<>();
 
+    /**
+     * Metodo para generar los nuevos vecindarios
+     * @param schedule Programador de las secuencias
+     * @param sequence Secuenci base "S"
+     * @param maxSequenceTries Numero maximo de intentos
+     */
     public static void getSequencesSx(Schedule schedule, List<Activity> sequence, int maxSequenceTries) {
         int method = random.nextInt(2);
         int neighborhoodSize;
@@ -77,6 +83,8 @@ public class MogSolver {
 
 //    exchange1 = random.nextInt(sequence.size());
 //    int insertIndex = random.nextInt(sequence.size());
+        
+        //Metodo de insercion
         exchange1 = random.nextInt(sequence.size());
         int insertIndex = random.nextInt(sequence.size());
         Activity activity1 = newSequence.remove(exchange1);
@@ -109,7 +117,7 @@ public class MogSolver {
 
     /**
      * Ingresa la secuencia "S" para obtener el TWST y el Cmax.
-     * @param sequence
+     * @param sequence Secuencia nueva
      * @return sequence con el Cmax y el TWST
      */
     private static model.Solution createSolution(List<Activity> sequence) {
@@ -153,8 +161,8 @@ public class MogSolver {
     }
 
     /**
-     *
-     * @param Activities
+     *Metodo de salida de las nuevas secuencias
+     * @param Activities Lista de actividades de la secuencia
      */
 
     private static void printSequence(List<Activity> Activities) {
