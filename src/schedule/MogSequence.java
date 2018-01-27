@@ -91,10 +91,8 @@ public class MogSequence extends Sequence {
     return true;
   }
 
-  @Override
-  public List<Solution> getSolutions(Schedule schedule) {
-    Solution solution = new Solution(generateSequence(schedule), -1, -1);
-    return  Collections.singletonList(solution);
+  public Solution getSolution(Schedule schedule) {
+    return new Solution(generateSequence(schedule), -1, -1);
   }
 
   /**

@@ -12,7 +12,6 @@ import java.util.stream.Collectors;
 public class Spea2Solver {
     private static Random random = new Random();
     private static Set<Solution> allSolutions;
-    private static Set<Solution> bestSolutions;
     private static Cloner cloner = new Cloner();
 
     /**
@@ -45,6 +44,7 @@ public class Spea2Solver {
                     String message = e.getMessage();
                     if (!message.equals("El trabajo tiene predecesores") &&
                             !message.equals("No hay recursos") &&
+                            !message.equals("La secuencia tiene actividades duplicadas") &&
                             !message.equals("No sirve la secuencia")) {
                         e.printStackTrace();
                     }
@@ -138,24 +138,5 @@ public class Spea2Solver {
                 })
                 .sum();
         return new Solution(sequence, cMax, twst);
-    }
-
-    /**
-     *Metodo para imprimir la secuencia final
-     * @param Activities Actividades
-     */
-
-    private static void printSequence(List<Activity> Activities) {
-        for (Activity activity : Activities) {
-            System.out.print(activity.getId() + " ");
-        }
-        System.out.println();
-    }
-
-    private static void printSequenceJ(List<Activity> newSequence) {
-        for (Activity activity : newSequence) {
-            System.out.print(activity.getId() + " ");
-        }
-        System.out.println();
     }
 }

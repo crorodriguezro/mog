@@ -30,8 +30,6 @@ public abstract class Sequence {
     return generateSequence(schedule);
   }
 
-  abstract List<Solution> getSolutions(Schedule schedule);
-
   public List<Activity> generateSequence(Schedule schedule) {
     worldTime = 0;
     sequence = new ArrayList<>();
@@ -126,5 +124,28 @@ public abstract class Sequence {
             })
             .sum();
     return new Solution(sequence, cMax, twst);
+  }
+
+  public static List<Solution> getNonDominated(List<Solution> allSolutions) {
+    List<Solution> bestSolutions;
+    List<Solution> listWithoutDuplicates = allSolutions.stream()
+            .distinct()
+            .collect(Collectors.toList());
+
+    bestSolutions = listWithoutDuplicates.stream().filter(candidateSolution -> {
+      boolean nonDominant = listWithoutDuplicates.stream()
+              .filter(solution -> !solution.equals(candidateSolution))
+              .anyMatch(solution -> {
+                boolean bestOrEqualCmax = solution.getcMax() <= candidateSolution.getcMax();
+                boolean bestOrEqualTwst = solution.getTwst() <= candidateSolution.getTwst();
+                return bestOrEqualCmax && bestOrEqualTwst;
+              });
+      return !nonDominant;
+    }).collect(Collectors.toList());
+
+    bestSolutions.forEach(solution -> {
+      System.out.println(solution.getcMax() + "\t" + solution.getTwst());
+    });
+    return bestSolutions;
   }
 }

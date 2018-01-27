@@ -7,6 +7,7 @@ import java.util.List;
 
 import model.Solution;
 import model.Schedule;
+import performancemesures.DistanceMetrics;
 import schedule.*;
 
 /**
@@ -15,62 +16,111 @@ import schedule.*;
  * El metodo por el que se van a generar las "S".
  * EL metodo por el que van a ser generados los "S*"
  * El criterio de detencion del programa.
-  */
+ */
 public class Main {
-  /**
-   * Archivo fuente con la informacion de las actividades
-   */
-  private static final String DEFINITION_FILE = "catalogo/j1201_1.sm";
-  /**
-   * Archivo fuente con los pesos de cada actividad
-   */
-  private static final String WEIGHT_FILE = "catalogo/j1201_1.w";
-  /**
-   * Metodo por el cual se obtiene la primera secuencia "S". "MOG" para Mog y "SPEA2" para ...
-   */
-  private static final String METHOD_S = "MOG";
-  /**
-   * Numero de veces que se va a ejecutar el programa (numero de "S")
-   */
-  private static int PROGRAM_EXECUTION_TIMES = 2;
-  /**
-   * Criterio de detencion cuando no se encuentren nuevas soluciones
-   */
-  private static int MAX_SEQUENCE_X_TRIES = 10000;
+    /**
+     * Archivo fuente con la informacion de las actividades
+     */
+    private static final String DEFINITION_FILE = "catalogo/j1201_1.sm";
+    /**
+     * Archivo fuente con los pesos de cada actividad
+     */
+    private static final String WEIGHT_FILE = "catalogo/j1201_1.w";
+    /**
+     * Metodo por el cual se obtiene la primera secuencia "S". "MOG" para Mog y "SPEA2" para ...
+     */
+    private static final String METHOD_S = "BOTH";
+    /**
+     * Numero de veces que se va a ejecutar el programa (numero de "S")
+     */
+    private static int PROGRAM_EXECUTION_TIMES = 3;
+    /**
+     * Criterio de detencion cuando no se encuentren nuevas soluciones
+     */
+    private static int MAX_SEQUENCE_X_TRIES = 1000;
+
     /**
      * La cantidad de ejecuciones que va a tener el programa
+     *
      * @param args Ejecuciones segun el numero suministrado
      */
     public static void main(String[] args) {
         Read reader = new Read();
         // Procesa el archivo
         Schedule schedule = reader.processFile(DEFINITION_FILE, WEIGHT_FILE);
-        List<Solution> solutions;
+        List<Solution> mogSolutions;
+        List<Solution> spea2Solutions;
+        MogSequence mogSequence = new MogSequence();
+        Spea2Sequence spea2Sequence = new Spea2Sequence();
         switch (METHOD_S) {
             case "MOG":
-                MogSequence mogSequence = new MogSequence();
-                for (int i = 0; i < PROGRAM_EXECUTION_TIMES; i++) {
-                    schedule = reader.processFile(DEFINITION_FILE, WEIGHT_FILE);
-                    solutions = mogSequence.getSolutions(schedule);
-                    MogSolver.getSequencesSx(schedule, solutions.get(0).getSequence(), MAX_SEQUENCE_X_TRIES);
-                    MogSolver.test();
-                }
+                System.out.println("_______________MOG_______________");
+                mogSolutions = getMogSolutions(reader, mogSequence);
+                System.out.println("Mejores soluciones: ");
+                printBestSolutions(mogSolutions);
                 break;
             case "SPEA2":
-                Spea2Sequence spea2Sequence = new Spea2Sequence();
-                solutions = spea2Sequence.getSolutions(schedule);
-                for (int i = 0; i < PROGRAM_EXECUTION_TIMES - 1; i++) {
-                    System.out.println("Ejecucion " + (i + 2));
-                    List<Solution> pPrima = solutions.subList(0, (int)(solutions.size() * 0.2));
-                    List<Solution> sequencesSx = Spea2Solver.getSequencesSx(schedule, pPrima, MAX_SEQUENCE_X_TRIES);
-                    solutions = new ArrayList<>(solutions.subList(0, solutions.size() - sequencesSx.size()));
-                    solutions.addAll(sequencesSx);
-                    solutions = spea2Sequence.getSolutions2(schedule, solutions);
-                    System.out.println("");
-                }
+                System.out.println("_______________SPEA_______________");
+                spea2Solutions = getSpea2Solutions(schedule, spea2Sequence);
+                printBestSolutions(spea2Solutions);
+                break;
+            case "BOTH":
+                System.out.println("_______________MOG_______________");
+                mogSolutions = getMogSolutions(reader, mogSequence);
+                System.out.println("_______________SPEA_______________");
+                spea2Solutions = getSpea2Solutions(schedule, spea2Sequence);
+                System.out.println();
+                System.out.println("_______________Mejores soluciones MOG_______________");
+                printBestSolutions(mogSolutions);
+                System.out.println("_______________Mejores soluciones Spea2_______________");
+                printBestSolutions(spea2Solutions);
+
+                DistanceMetrics.measurePerformance(mogSolutions, spea2Solutions);
                 break;
             default:
                 throw new RuntimeException("Metodo no conocido");
         }
+    }
+
+    private static void printBestSolutions(List<Solution> solutions) {
+        solutions.forEach(solution -> {
+            System.out.println(solution.toString());
+            solution.printSequence();
+        });
+        solutions.forEach(s -> {
+            System.out.println(s.getcMax() + "\t" + s.getTwst());
+        });
+        System.out.println();
+    }
+
+    private static List<Solution> getMogSolutions(Read reader, MogSequence mogSequence) {
+        List<Solution> mogSolutions;
+        Schedule schedule;
+        mogSolutions = new ArrayList<>();
+        for (int i = 0; i < PROGRAM_EXECUTION_TIMES; i++) {
+            System.out.println("Ejecucion " + (i + 1));
+            schedule = reader.processFile(DEFINITION_FILE, WEIGHT_FILE);
+            Solution solution = mogSequence.getSolution(schedule);
+            List<Solution> newSolutions = MogSolver.getSequencesSx(schedule, solution, MAX_SEQUENCE_X_TRIES);
+            mogSolutions.addAll(newSolutions);
+            mogSolutions.add(Sequence.createSolution(solution.getSequence()));
+        }
+        return Sequence.getNonDominated(mogSolutions);
+    }
+
+    private static List<Solution> getSpea2Solutions(Schedule schedule, Spea2Sequence spea2Sequence) {
+        List<Solution> spea2Solutions;
+        System.out.println("Ejecucion " + 1);
+        spea2Solutions = spea2Sequence.getSolutions(schedule);
+        for (int i = 0; i < PROGRAM_EXECUTION_TIMES - 1; i++) {
+            System.out.println("Ejecucion " + (i + 2));
+            // Pprima equivale al 20% pero puede cambiarse al porcentaje que queramos de P
+            List<Solution> pPrima = spea2Solutions.subList(0, (int) (spea2Solutions.size() * 0.2));
+            List<Solution> sequencesSx = Spea2Solver.getSequencesSx(schedule, pPrima, MAX_SEQUENCE_X_TRIES);
+            spea2Solutions = new ArrayList<>(spea2Solutions.subList(0, spea2Solutions.size() - sequencesSx.size()));
+            spea2Solutions.addAll(sequencesSx);
+            spea2Solutions = spea2Sequence.getSolutions2(schedule, spea2Solutions);
+        }
+        return Sequence.getNonDominated(spea2Solutions);
     }
 }

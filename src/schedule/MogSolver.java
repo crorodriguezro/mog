@@ -10,57 +10,58 @@ import java.util.stream.Collectors;
 
 public class MogSolver {
     private static Random random = new Random();
-    private static Set<Solution> allSolutions = new HashSet<>();
-    private static Set<Solution> bestSolutions = new HashSet<>();
+    private static Set<Solution> allSolutions;
 
     /**
      * Metodo para generar los nuevos vecindarios
-     * @param schedule Programador de las secuencias
-     * @param sequence Secuenci base "S"
+     *
+     * @param schedule         Programador de las secuencias
+     * @param solution         Secuencia base "S"
      * @param maxSequenceTries Numero maximo de intentos
      */
-    public static void getSequencesSx(Schedule schedule, List<Activity> sequence, int maxSequenceTries) {
+    public static List<Solution> getSequencesSx(Schedule schedule, Solution solution, int maxSequenceTries) {
+        allSolutions = new HashSet<>();
+        List<Activity> activities = solution.getSequence();
         int method = random.nextInt(2);
         int neighborhoodSize;
         if (method == 0) {
-            neighborhoodSize = sequence.size() * (sequence.size() - 1) / 2;
+            neighborhoodSize = activities.size() * (activities.size() - 1) / 2;
         } else {
-            neighborhoodSize = (sequence.size() - 1) * (sequence.size() - 1);
+            neighborhoodSize = (activities.size() - 1) * (activities.size() - 1);
         }
         int solutionsCounter = 0;
         int triesCounter = 0;
-        //printSequenceJ(sequence);
         while (solutionsCounter < neighborhoodSize && triesCounter < maxSequenceTries) {
             try {
-                List<Activity> clonedSequence = getClonedActivities(sequence);
+                List<Activity> clonedSequence = getClonedActivities(activities);
                 List<Activity> newSequence = getNeighborhood(clonedSequence, method);
-                //printSequenceJ(newSequence);
                 Validator validator = new Validator(schedule.getResources(), newSequence);
                 List<Activity> validatedSequence = validator.validate();
                 solutionsCounter++;
                 triesCounter++;
-//        System.out.println(solutionsCounter);
                 allSolutions.add(createSolution(validatedSequence));
-//          printSequence(validatedSequence);
             } catch (RuntimeException e) {
                 triesCounter++;
                 String message = e.getMessage();
                 if (!message.equals("El trabajo tiene predecesores") &&
                         !message.equals("No hay recursos") &&
+                        !message.equals("La secuencia tiene actividades duplicadas") &&
                         !message.equals("No sirve la secuencia")) {
                     e.printStackTrace();
-                } else {
-                    //System.out.print("");
                 }
             }
-            //System.out.println("intentos: " + triesCounter);
         }
+        allSolutions.forEach(s -> {
+            System.out.println(s.getcMax() + "\t" + s.getTwst());
+        });
+        return new ArrayList<>(allSolutions);
     }
 
     /**
      * Ingresa la secuencia "S" y el metodo que se obtuvo de manera aleatoria entre metodo de insercion o el metodo de intercambio
+     *
      * @param sequence "S"
-     * @param method insercion o intercambio
+     * @param method   insercion o intercambio
      * @return newSequence
      */
     private static List<Activity> getNeighborhood(List<Activity> sequence, int method) {
@@ -83,7 +84,7 @@ public class MogSolver {
 
 //    exchange1 = random.nextInt(sequence.size());
 //    int insertIndex = random.nextInt(sequence.size());
-        
+
         //Metodo de insercion
         exchange1 = random.nextInt(sequence.size());
         int insertIndex = random.nextInt(sequence.size());
@@ -99,6 +100,7 @@ public class MogSolver {
 
     /**
      * Ingresa la secuencia "S" para ser duplicada y asi poder realizar los cambios en esta secuencia sin alterar la original
+     *
      * @param sequence
      * @return sequence duplicada
      */
@@ -117,15 +119,14 @@ public class MogSolver {
 
     /**
      * Ingresa la secuencia "S" para obtener el TWST y el Cmax.
+     *
      * @param sequence Secuencia nueva
      * @return sequence con el Cmax y el TWST
      */
-    private static model.Solution createSolution(List<Activity> sequence) {
+    private static Solution createSolution(List<Activity> sequence) {
         int cMax = sequence.get(sequence.size() - 1).getFinishTime();
         double twst = sequence.stream()
-                .mapToDouble(activity -> {
-                    return (double)activity.getStartTime() / activity.getWeight();
-                })
+                .mapToDouble(activity -> (double) activity.getStartTime() / activity.getWeight())
                 .sum();
         return new Solution(sequence, cMax, twst);
     }
@@ -135,9 +136,9 @@ public class MogSolver {
      * y con el mejor TWST, posteriormente selecciona las secuencias que se encuentren en el intermedio de estas dos
      * y asi se obtienen las secuencias no dominadas.
      */
-    public static void test() {
+    public static void printBestSolutions(List<Solution> solutions) {
         List<Solution> bestSolutions;
-        List<Solution> listWithoutDuplicates = allSolutions.stream()
+        List<Solution> listWithoutDuplicates = solutions.stream()
                 .distinct()
                 .collect(Collectors.toList());
 
@@ -161,19 +162,13 @@ public class MogSolver {
     }
 
     /**
-     *Metodo de salida de las nuevas secuencias
+     * Metodo de salida de las nuevas secuencias
+     *
      * @param Activities Lista de actividades de la secuencia
      */
 
     private static void printSequence(List<Activity> Activities) {
         for (Activity activity : Activities) {
-            System.out.print(activity.getId() + " ");
-        }
-        System.out.println();
-    }
-
-    private static void printSequenceJ(List<Activity> newSequence) {
-        for (Activity activity : newSequence) {
             System.out.print(activity.getId() + " ");
         }
         System.out.println();

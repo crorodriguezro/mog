@@ -15,41 +15,41 @@ public class Spea2Sequence extends Sequence {
   /**
    * Numero de secuencias de la poblacion inicial
    */
-  private static final Map<Integer, Integer> cambiarNombre;
+  private static final Map<Integer, Integer> initialPopulation;
   static
   {
-    cambiarNombre = new HashMap<>();
-    cambiarNombre.put(50, 500);
-    cambiarNombre.put(75, 500);
-    cambiarNombre.put(100, 600);
-    cambiarNombre.put(125, 600);
-    cambiarNombre.put(150, 750);
-    cambiarNombre.put(175, 900);
-    cambiarNombre.put(200, 1000);
+    initialPopulation = new HashMap<>();
+    initialPopulation.put(50, 500);
+    initialPopulation.put(75, 500);
+    initialPopulation.put(100, 600);
+    initialPopulation.put(125, 600);
+    initialPopulation.put(150, 750);
+    initialPopulation.put(175, 900);
+    initialPopulation.put(200, 1000);
   }
 
-  @Override
   public List<Solution> getSolutions(Schedule schedule) {
     int activitiesCount = schedule.getActivities().length;
     int sequencesTotal;
     if (activitiesCount <= 50) {
-      sequencesTotal = cambiarNombre.get(50);
+      sequencesTotal = initialPopulation.get(50);
     } else if (activitiesCount <= 75) {
-      sequencesTotal = cambiarNombre.get(75);
+      sequencesTotal = initialPopulation.get(75);
     } else if (activitiesCount <= 100) {
-      sequencesTotal = cambiarNombre.get(100);
+      sequencesTotal = initialPopulation.get(100);
     } else if (activitiesCount <= 125) {
-      sequencesTotal = cambiarNombre.get(125);
+      sequencesTotal = initialPopulation.get(125);
     } else if (activitiesCount <= 150) {
-      sequencesTotal = cambiarNombre.get(150);
+      sequencesTotal = initialPopulation.get(150);
     } else if (activitiesCount <= 175) {
-      sequencesTotal = cambiarNombre.get(175);
+      sequencesTotal = initialPopulation.get(175);
     } else {
-      sequencesTotal = cambiarNombre.get(200);
+      sequencesTotal = initialPopulation.get(200);
     }
-/**
- * Se crea el nuevo archivo para almacenar las seuencias no dominadas
- */
+
+  /**
+   * Se crea la variable para almacenar las seuencias no dominadas
+   */
     List<Solution> solutions = new ArrayList<>();
     Cloner cloner=new Cloner();
     for (int i = 0; i < sequencesTotal; i++) {
@@ -84,9 +84,6 @@ public class Spea2Sequence extends Sequence {
       solution.setDominatedBy(dominatedBy);
       BigDecimal density = new BigDecimal(1 / (Math.pow(getBiggestDistance(distances), k) + 2));
       BigDecimal fitness = density.add(new BigDecimal(dominatedBy.size()));
-      if (fitness.compareTo(new BigDecimal(0.5)) == 0) {
-        System.out.println();
-      }
       solution.setFitness(fitness);
     }
 //    solutions.forEach(solution -> {
@@ -99,7 +96,6 @@ public class Spea2Sequence extends Sequence {
 
 
   public List<Solution> getSolutions2(Schedule schedule, List<Solution> solutions) {
-    Cloner cloner = new Cloner();
     List<Solution> clonedSolutions = cloneSolution(solutions);
     List<Solution> nonDominatedSolutions = getNonDominated(clonedSolutions);
     /**
@@ -123,9 +119,6 @@ public class Spea2Sequence extends Sequence {
       solution.setDominatedBy(dominatedBy);
       BigDecimal density = new BigDecimal(1 / (Math.pow(getBiggestDistance(distances), k) + 2));
       BigDecimal fitness = density.add(new BigDecimal(dominatedBy.size()));
-      if (fitness.compareTo(new BigDecimal(0.5)) == 0) {
-        System.out.println();
-      }
       solution.setFitness(fitness);
     }
 //    solutions.forEach(solution -> {
@@ -190,33 +183,6 @@ public class Spea2Sequence extends Sequence {
       }
     }
     return true;
-  }
-
-  public static boolean isBetween(int x, int lower, int upper) {
-    return lower <= x && x <= upper;
-  }
-
-  private static List<Solution> getNonDominated(List<Solution> allSolutions) {
-    List<Solution> bestSolutions;
-    List<Solution> listWithoutDuplicates = allSolutions.stream()
-            .distinct()
-            .collect(Collectors.toList());
-
-    bestSolutions = listWithoutDuplicates.stream().filter(candidateSolution -> {
-      boolean nonDominant = listWithoutDuplicates.stream()
-              .filter(solution -> !solution.equals(candidateSolution))
-              .anyMatch(solution -> {
-                boolean bestOrEqualCmax = solution.getcMax() <= candidateSolution.getcMax();
-                boolean bestOrEqualTwst = solution.getTwst() <= candidateSolution.getTwst();
-                return bestOrEqualCmax && bestOrEqualTwst;
-              });
-      return !nonDominant;
-    }).collect(Collectors.toList());
-
-    bestSolutions.forEach(solution -> {
-      System.out.println(solution.getcMax() + "\t" + solution.getTwst());
-    });
-    return bestSolutions;
   }
 
   private static List<Solution> cloneSolution(List<Solution> solutions) {

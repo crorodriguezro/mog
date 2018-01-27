@@ -98,4 +98,11 @@ public class Solution {
   public void setFitness(BigDecimal fitness) {
     this.fitness = fitness;
   }
+
+  public void printSequence() {
+    for (Activity activity : sequence) {
+      System.out.print(activity.getId() + " ");
+    }
+    System.out.println();
+  }
 }

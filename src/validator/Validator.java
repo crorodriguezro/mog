@@ -1,11 +1,6 @@
 package validator;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
@@ -44,8 +39,18 @@ public class Validator {
    * precedencia, los recursos y los tiempos de inicio.
    */
   public List<Activity> validate() {
-//    System.out.println("Inicio");
     Activities = new ArrayList<>();
+    List<Integer> ids = sequence.stream()
+            .map(Activity::getId)
+            .collect(Collectors.toList());
+
+    Set<Integer> duplicatedActivities = ids.stream().filter(i -> Collections.frequency(ids, i) >1)
+            .collect(Collectors.toSet());
+
+    if(duplicatedActivities.size() > 0) {
+      throw new RuntimeException("La secuencia tiene actividades duplicadas");
+    }
+
     while (sequence.size() > 0) {
       if (sequence.get(0).getStartTime() != -1) {
         List<Activity> test = sequence.stream()
