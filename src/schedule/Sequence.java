@@ -1,5 +1,7 @@
 package schedule;
 
+import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -123,6 +125,7 @@ public abstract class Sequence {
               return (double)activity.getStartTime() / activity.getWeight();
             })
             .sum();
+    twst = Math.round(twst*100)/100d;
     return new Solution(sequence, cMax, twst);
   }
 
@@ -144,7 +147,12 @@ public abstract class Sequence {
     }).collect(Collectors.toList());
 
     bestSolutions.forEach(solution -> {
-      System.out.println(solution.getcMax() + "\t" + solution.getTwst());
+      DecimalFormatSymbols separadores = new DecimalFormatSymbols();
+      separadores.setDecimalSeparator(',');
+      DecimalFormat formato = new DecimalFormat("##.##",separadores);
+
+      System.out.println(solution.getcMax() + "\t" + formato.format(solution.getTwst()));
+
     });
     return bestSolutions;
   }

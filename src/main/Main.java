@@ -2,6 +2,8 @@ package main;
 
 import file.Read;
 
+import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -21,23 +23,23 @@ public class Main {
     /**
      * Archivo fuente con la informacion de las actividades
      */
-    private static final String DEFINITION_FILE = "catalogo/j1201_1.sm";
+    private static final String DEFINITION_FILE = "catalogo/j301_1.sm";
     /**
      * Archivo fuente con los pesos de cada actividad
      */
-    private static final String WEIGHT_FILE = "catalogo/j1201_1.w";
+    private static final String WEIGHT_FILE = "catalogo/j301_1.w";
     /**
      * Metodo por el cual se obtiene la primera secuencia "S". "MOG" para Mog y "SPEA2" para ...
      */
-    private static final String METHOD_S = "BOTH";
+    private static final String METHOD_S = "MOG";
     /**
      * Numero de veces que se va a ejecutar el programa (numero de "S")
      */
-    private static int PROGRAM_EXECUTION_TIMES = 3;
+    private static int PROGRAM_EXECUTION_TIMES = 5;
     /**
      * Criterio de detencion cuando no se encuentren nuevas soluciones
      */
-    private static int MAX_SEQUENCE_X_TRIES = 1000;
+    private static int MAX_SEQUENCE_X_TRIES = 10000;
 
     /**
      * La cantidad de ejecuciones que va a tener el programa
@@ -88,7 +90,11 @@ public class Main {
             solution.printSequence();
         });
         solutions.forEach(s -> {
-            System.out.println(s.getcMax() + "\t" + s.getTwst());
+            DecimalFormatSymbols separadores = new DecimalFormatSymbols();
+            separadores.setDecimalSeparator(',');
+            DecimalFormat formato = new DecimalFormat("##.##",separadores);
+
+            System.out.println(s.getcMax() + "\t" + formato.format(s.getTwst()));
         });
         System.out.println();
     }
