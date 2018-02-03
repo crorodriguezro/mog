@@ -39,7 +39,7 @@ public class MogSolver {
                 List<Activity> validatedSequence = validator.validate();
                 solutionsCounter++;
                 triesCounter++;
-                allSolutions.add(createSolution(validatedSequence));
+                allSolutions.add(new Solution(validatedSequence));
             } catch (RuntimeException e) {
                 triesCounter++;
                 String message = e.getMessage();
@@ -115,20 +115,6 @@ public class MogSolver {
             });
         });
         return clonedActivities;
-    }
-
-    /**
-     * Ingresa la secuencia "S" para obtener el TWST y el Cmax.
-     *
-     * @param sequence Secuencia nueva
-     * @return sequence con el Cmax y el TWST
-     */
-    private static Solution createSolution(List<Activity> sequence) {
-        int cMax = sequence.get(sequence.size() - 1).getFinishTime();
-        double twst = sequence.stream()
-                .mapToDouble(activity -> (double) activity.getStartTime() / activity.getWeight())
-                .sum();
-        return new Solution(sequence, cMax, twst);
     }
 
     /**

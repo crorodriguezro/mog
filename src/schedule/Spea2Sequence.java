@@ -55,7 +55,7 @@ public class Spea2Sequence extends Sequence {
     for (int i = 0; i < sequencesTotal; i++) {
       Schedule clone = cloner.deepClone(schedule);
       List<Activity> sequence = generateSequence(clone);
-      solutions.add(createSolution(sequence));
+      solutions.add(new Solution(sequence));
     }
 /**
  * Obtiene las secuencias no dominadas

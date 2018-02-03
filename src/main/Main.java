@@ -2,6 +2,8 @@ package main;
 
 import file.Read;
 
+import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -33,11 +35,14 @@ public class Main {
     /**
      * Numero de veces que se va a ejecutar el programa (numero de "S")
      */
-    private static int PROGRAM_EXECUTION_TIMES = 3;
+    private static int PROGRAM_EXECUTION_TIMES = 4;
     /**
      * Criterio de detencion cuando no se encuentren nuevas soluciones
      */
     private static int MAX_SEQUENCE_X_TRIES = 1000;
+
+    private static double xMax = 175;
+    private static double twst = 2392.49;
 
     /**
      * La cantidad de ejecuciones que va a tener el programa
@@ -52,17 +57,25 @@ public class Main {
         List<Solution> spea2Solutions;
         MogSequence mogSequence = new MogSequence();
         Spea2Sequence spea2Sequence = new Spea2Sequence();
+        double areaSpea2;
+        double areaMog;
         switch (METHOD_S) {
             case "MOG":
                 System.out.println("_______________MOG_______________");
                 mogSolutions = getMogSolutions(reader, mogSequence);
                 System.out.println("Mejores soluciones: ");
                 printBestSolutions(mogSolutions);
+
+                areaMog = DistanceMetrics.measurePerformance(mogSolutions, xMax, twst);
+                System.out.println("Area Mog: " + areaMog);
                 break;
             case "SPEA2":
                 System.out.println("_______________SPEA_______________");
                 spea2Solutions = getSpea2Solutions(schedule, spea2Sequence);
                 printBestSolutions(spea2Solutions);
+
+                areaSpea2 = DistanceMetrics.measurePerformance(spea2Solutions, xMax, twst);
+                System.out.println("Area Mog: " + areaSpea2);
                 break;
             case "BOTH":
                 System.out.println("_______________MOG_______________");
@@ -75,7 +88,11 @@ public class Main {
                 System.out.println("_______________Mejores soluciones Spea2_______________");
                 printBestSolutions(spea2Solutions);
 
-                DistanceMetrics.measurePerformance(mogSolutions, spea2Solutions);
+                areaSpea2 = DistanceMetrics.measurePerformance(spea2Solutions, xMax, twst);
+                areaMog = DistanceMetrics.measurePerformance(mogSolutions, xMax, twst);
+
+                System.out.println("Area Spea2: " + areaSpea2);
+                System.out.println("Area Mog: " + areaMog);
                 break;
             default:
                 throw new RuntimeException("Metodo no conocido");
@@ -83,12 +100,15 @@ public class Main {
     }
 
     private static void printBestSolutions(List<Solution> solutions) {
+        DecimalFormatSymbols separadores = new DecimalFormatSymbols();
+        separadores.setDecimalSeparator(',');
+        DecimalFormat format = new DecimalFormat("##.##", separadores);
         solutions.forEach(solution -> {
             System.out.println(solution.toString());
             solution.printSequence();
         });
         solutions.forEach(s -> {
-            System.out.println(s.getcMax() + "\t" + s.getTwst());
+            System.out.println(format.format(s.getcMax()) + "\t" + format.format(s.getTwst()));
         });
         System.out.println();
     }
@@ -103,8 +123,9 @@ public class Main {
             Solution solution = mogSequence.getSolution(schedule);
             List<Solution> newSolutions = MogSolver.getSequencesSx(schedule, solution, MAX_SEQUENCE_X_TRIES);
             mogSolutions.addAll(newSolutions);
-            mogSolutions.add(Sequence.createSolution(solution.getSequence()));
+            mogSolutions.add(new Solution(solution.getSequence()));
         }
+        System.out.println("Soluciones finales");
         return Sequence.getNonDominated(mogSolutions);
     }
 
@@ -121,6 +142,7 @@ public class Main {
             spea2Solutions.addAll(sequencesSx);
             spea2Solutions = spea2Sequence.getSolutions2(schedule, spea2Solutions);
         }
+        System.out.println("Soluciones finales");
         return Sequence.getNonDominated(spea2Solutions);
     }
 }

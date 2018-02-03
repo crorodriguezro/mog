@@ -111,21 +111,6 @@ public abstract class Sequence {
     finishedActivities.forEach(completeActivity);
   }
 
-  /**
-   * Ingresa la secuencia "S" para obtener el TWST y el Cmax.
-   * @param sequence
-   * @return sequence con el Cmax y el TWST
-   */
-  public static Solution createSolution(List<Activity> sequence) {
-    int cMax = sequence.get(sequence.size() - 1).getFinishTime();
-    double twst = sequence.stream()
-            .mapToDouble(activity -> {
-              return (double)activity.getStartTime() / activity.getWeight();
-            })
-            .sum();
-    return new Solution(sequence, cMax, twst);
-  }
-
   public static List<Solution> getNonDominated(List<Solution> allSolutions) {
     List<Solution> bestSolutions;
     List<Solution> listWithoutDuplicates = allSolutions.stream()
