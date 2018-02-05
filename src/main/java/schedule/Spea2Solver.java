@@ -7,7 +7,6 @@ import project.Activity;
 import validator.Validator;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 public class Spea2Solver {
     private static Random random = new Random();

@@ -1,16 +1,15 @@
 package main;
 
 import file.Read;
+import model.Schedule;
+import model.Solution;
+import performancemesures.DistanceMetrics;
+import schedule.*;
 
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
 import java.util.ArrayList;
 import java.util.List;
-
-import model.Solution;
-import model.Schedule;
-import performancemesures.DistanceMetrics;
-import schedule.*;
 
 /**
  * En el main se van a encontrar los archivos fuente, los cuales contienen la informacion de las actividades.

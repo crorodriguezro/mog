@@ -1,11 +1,11 @@
 package validator;
 
+import project.Activity;
+import project.Resource;
+
 import java.util.*;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
-
-import project.Activity;
-import project.Resource;
 
 /**
  * Esta clase valida las secuencias "S*" que se obtienen, basado en las restricciones que presenta cada

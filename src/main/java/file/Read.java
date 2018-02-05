@@ -1,8 +1,8 @@
 package file;
 
+import model.Schedule;
 import project.Activity;
 import project.Resource;
-import model.Schedule;
 
 import java.io.*;
 import java.util.logging.Level;
@@ -30,8 +30,9 @@ public class Read {
         BufferedReader weightFileReader;
         try {
             //Iniciamos el reader con el nombre del archivo
-            mainFileReader = new BufferedReader(new FileReader(fileName));
-            weightFileReader = new BufferedReader(new FileReader(weightFile));
+            ClassLoader classLoader = getClass().getClassLoader();
+            mainFileReader = new BufferedReader(new FileReader(new File(classLoader.getResource(fileName).getFile())));
+            weightFileReader = new BufferedReader(new FileReader(new File(classLoader.getResource(weightFile).getFile())));
         } catch (FileNotFoundException e) {
             LOGGER.log(Level.FINE, e.toString());
             return null;
